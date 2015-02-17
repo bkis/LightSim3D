@@ -29,7 +29,7 @@ public class Main extends SimpleApplication {
         Material mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
         mat.setTexture("DiffuseMap", assetManager.loadTexture("Models/Table/diffuse.tga"));
         mat.setTexture("NormalMap", assetManager.loadTexture("Models/Table/normal.tga"));
-        mat.setTexture("SpecularMap", assetManager.loadTexture("Models/Table/spec.tga"));
+        mat.setTexture("SpecularMap", assetManager.loadTexture("Models/Table/specular.tga"));
         table.setMaterial(mat);
         table.scale(0.05f);
         table.move(0, -2, 0);
@@ -44,7 +44,7 @@ public class Main extends SimpleApplication {
         //sunlight
         DirectionalLight sun = new DirectionalLight();
         sun.setDirection((new Vector3f(-0.5f, -0.5f, -0.5f)).normalizeLocal());
-        sun.setColor(ColorRGBA.White);
+        sun.setColor(new ColorRGBA(1f,1f,0.95f,1f));
         rootNode.addLight(sun); 
         
         //shadow renderer
