@@ -4,11 +4,13 @@ import com.jme3.app.SimpleApplication;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
+import com.jme3.material.RenderState.BlendMode;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.queue.RenderQueue;
+import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.CameraNode;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
@@ -37,7 +39,8 @@ public class Main extends SimpleApplication {
         //setup
         flyCam.setMoveSpeed(10f);
         flyCam.setEnabled(true);
-        
+//        viewPort.setBackgroundColor(ColorRGBA.Green);
+
         //table
         Spatial table = assetManager.loadModel("Models/Table/table.obj");
         Material matTable = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
@@ -57,7 +60,7 @@ public class Main extends SimpleApplication {
         matBench.setTexture("SpecularMap", assetManager.loadTexture("Models/Bench/specular.tga"));
         bench.setMaterial(matBench);
         bench.scale(0.05f);
-        bench.move(-1, 0, 4);
+        bench.move(0, 0, 4);
         bench.rotate(0, FastMath.DEG_TO_RAD*9, 0);
         bench.setShadowMode(RenderQueue.ShadowMode.CastAndReceive);
         rootNode.attachChild(bench);
@@ -70,14 +73,45 @@ public class Main extends SimpleApplication {
         matChair.setTexture("SpecularMap", assetManager.loadTexture("Models/Chair/specular.tga"));
         chair.setMaterial(matChair);
         chair.scale(0.16f);
-        chair.move(2, 1.8f, -4);
-        chair.rotate(0, FastMath.DEG_TO_RAD*9, 0);
+        chair.move(3, 1.7f, -4);
+        chair.rotate(0, FastMath.DEG_TO_RAD*-12, 0);
         chair.setShadowMode(RenderQueue.ShadowMode.CastAndReceive);
         rootNode.attachChild(chair);
         
+        //candle
+        Spatial candle = assetManager.loadModel("Models/Candle/candle.obj");
+        Material matCandle = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+        matCandle.setTexture("DiffuseMap", assetManager.loadTexture("Models/Candle/diffuse.tga"));
+        matCandle.setTexture("NormalMap", assetManager.loadTexture("Models/Candle/normal.tga"));
+        matCandle.setTexture("SpecularMap", assetManager.loadTexture("Models/Candle/specular.tga"));
+        candle.setMaterial(matCandle);
+        candle.scale(0.003f);
+        candle.move(0, 2.59f, 0);
+        candle.rotate(0, FastMath.DEG_TO_RAD*-12, 0);
+        candle.setShadowMode(RenderQueue.ShadowMode.CastAndReceive);
+        rootNode.attachChild(candle);
+        
+        //glass
+        Spatial glass = assetManager.loadModel("Models/Glass/Glass.obj");
+        Material matGlass = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+//        matGlass.setTexture("DiffuseMap", assetManager.loadTexture("Models/Candle/diffuse.tga"));
+//        matGlass.setTexture("NormalMap", assetManager.loadTexture("Models/Candle/normal.tga"));
+//        matGlass.setTexture("SpecularMap", assetManager.loadTexture("Models/Candle/specular.tga"));
+        matGlass.setBoolean("UseMaterialColors",true);
+        matGlass.setColor("Diffuse", new ColorRGBA(1,1,1,0.5f));
+        matGlass.setColor("Ambient", new ColorRGBA(1,1,1,0.5f));
+        matGlass.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
+        glass.setMaterial(matGlass);
+        glass.scale(0.004f);
+        glass.move(0, 2.2f, 0);
+        glass.rotate(0, FastMath.DEG_TO_RAD*-12, 0);
+        glass.setShadowMode(RenderQueue.ShadowMode.CastAndReceive);
+        glass.setQueueBucket(Bucket.Transparent); 
+//        rootNode.attachChild(glass);
+        
         //ambient light
         AmbientLight ambient = new AmbientLight();
-        ambient.setColor(ColorRGBA.White);
+        ambient.setColor(ColorRGBA.White.mult(1.5f));
         rootNode.addLight(ambient); 
         
         //sunlight
@@ -92,19 +126,19 @@ public class Main extends SimpleApplication {
         viewPort.addProcessor(dlsr); 
         
         //camera node
-//        camera = new Node();
-//        flyCam.setEnabled(false);
-//        camNode = new CameraNode("Camera Node", cam);
-//        camNode.setControlDir(ControlDirection.SpatialToCamera);
-//        camera.attachChild(camNode);
-//        camNode.setLocalTranslation(new Vector3f(0, 6, -8));
-//        camNode.lookAt(table.getLocalTranslation().add(0, 2, 0), Vector3f.UNIT_Y);
-//        rootNode.attachChild(camera);
+        camera = new Node();
+        flyCam.setEnabled(false);
+        camNode = new CameraNode("Camera Node", cam);
+        camNode.setControlDir(ControlDirection.SpatialToCamera);
+        camera.attachChild(camNode);
+        camNode.setLocalTranslation(new Vector3f(0, 6, -8));
+        camNode.lookAt(table.getLocalTranslation().add(0, 2, 0), Vector3f.UNIT_Y);
+        rootNode.attachChild(camera);
     }
 
     @Override
     public void simpleUpdate(float tpf) {
-//        camera.rotate(0, FastMath.DEG_TO_RAD*20*tpf, 0);
+        camera.rotate(0, FastMath.DEG_TO_RAD*20*tpf, 0);
     }
 
     @Override
