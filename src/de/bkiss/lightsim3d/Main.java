@@ -91,24 +91,6 @@ public class Main extends SimpleApplication {
         candle.setShadowMode(RenderQueue.ShadowMode.CastAndReceive);
         rootNode.attachChild(candle);
         
-        //glass
-        Spatial glass = assetManager.loadModel("Models/Glass/Glass.obj");
-        Material matGlass = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
-//        matGlass.setTexture("DiffuseMap", assetManager.loadTexture("Models/Candle/diffuse.tga"));
-//        matGlass.setTexture("NormalMap", assetManager.loadTexture("Models/Candle/normal.tga"));
-//        matGlass.setTexture("SpecularMap", assetManager.loadTexture("Models/Candle/specular.tga"));
-        matGlass.setBoolean("UseMaterialColors",true);
-        matGlass.setColor("Diffuse", new ColorRGBA(1,1,1,0.5f));
-        matGlass.setColor("Ambient", new ColorRGBA(1,1,1,0.5f));
-        matGlass.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
-        glass.setMaterial(matGlass);
-        glass.scale(0.004f);
-        glass.move(0, 2.2f, 0);
-        glass.rotate(0, FastMath.DEG_TO_RAD*-12, 0);
-        glass.setShadowMode(RenderQueue.ShadowMode.CastAndReceive);
-        glass.setQueueBucket(Bucket.Transparent); 
-//        rootNode.attachChild(glass);
-        
         //ambient light
         AmbientLight ambient = new AmbientLight();
         ambient.setColor(ColorRGBA.White.mult(1.5f));
