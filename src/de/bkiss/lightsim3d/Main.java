@@ -42,7 +42,7 @@ public class Main extends SimpleApplication {
 //        viewPort.setBackgroundColor(ColorRGBA.Green);
 
         //table
-        Spatial table = assetManager.loadModel("Models/Table/table.obj");
+        Spatial table = assetManager.loadModel("Models/Table/table.j3o");
         Material matTable = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
         matTable.setTexture("DiffuseMap", assetManager.loadTexture("Models/Table/diffuse.tga"));
         matTable.setTexture("NormalMap", assetManager.loadTexture("Models/Table/normal.tga"));
@@ -53,7 +53,7 @@ public class Main extends SimpleApplication {
         rootNode.attachChild(table);
         
         //bench
-        Spatial bench = assetManager.loadModel("Models/Bench/bench.obj");
+        Spatial bench = assetManager.loadModel("Models/Bench/bench.j3o");
         Material matBench = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
         matBench.setTexture("DiffuseMap", assetManager.loadTexture("Models/Bench/diffuse.tga"));
         matBench.setTexture("NormalMap", assetManager.loadTexture("Models/Bench/normal.tga"));
@@ -66,7 +66,7 @@ public class Main extends SimpleApplication {
         rootNode.attachChild(bench);
         
         //chair
-        Spatial chair = assetManager.loadModel("Models/Chair/chair.obj");
+        Spatial chair = assetManager.loadModel("Models/Chair/chair.j3o");
         Material matChair = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
         matChair.setTexture("DiffuseMap", assetManager.loadTexture("Models/Chair/diffuse.tga"));
         matChair.setTexture("NormalMap", assetManager.loadTexture("Models/Chair/normal.tga"));
@@ -79,7 +79,7 @@ public class Main extends SimpleApplication {
         rootNode.attachChild(chair);
         
         //candle
-        Spatial candle = assetManager.loadModel("Models/Candle/candle.obj");
+        Spatial candle = assetManager.loadModel("Models/Candle/candle.j3o");
         Material matCandle = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
         matCandle.setTexture("DiffuseMap", assetManager.loadTexture("Models/Candle/diffuse.tga"));
         matCandle.setTexture("NormalMap", assetManager.loadTexture("Models/Candle/normal.tga"));
