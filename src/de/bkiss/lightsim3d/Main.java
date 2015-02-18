@@ -16,6 +16,7 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.CameraControl.ControlDirection;
 import com.jme3.shadow.DirectionalLightShadowRenderer;
+import com.jme3.system.AppSettings;
 
 /**
  * Main class for LightSim3D
@@ -29,7 +30,14 @@ public class Main extends SimpleApplication {
     
     public static void main(String[] args) {
         Main app = new Main();
+        
+        AppSettings settings = new AppSettings(true);
+        settings.setResolution(1024, 768);
+        settings.setBitsPerPixel(24);
+        settings.setFullscreen(false);
+        
         app.showSettings = false;
+        app.setSettings(settings);
         app.start();
     }
     
