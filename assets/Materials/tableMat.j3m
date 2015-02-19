@@ -1,0 +1,9 @@
+Material tableMat : Common/MatDefs/Light/Lighting.j3md {
+     MaterialParameters {
+        DiffuseMap : Flip Models/Table/diffuse.jpg
+        SpecularMap : Flip Models/Table/specular.jpg
+        NormalMap : Flip Models/Table/normal.jpg
+     }
+    AdditionalRenderState {
+    }
+}

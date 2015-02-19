@@ -1,0 +1,9 @@
+Material chairMat : Common/MatDefs/Light/Lighting.j3md {
+     MaterialParameters {
+        DiffuseMap : Flip Models/Chair/diffuse.jpg
+        SpecularMap : Flip Models/Chair/specular.jpg
+        NormalMap : Flip Models/Chair/normal.jpg
+     }
+    AdditionalRenderState {
+    }
+}
