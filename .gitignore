@@ -1,7 +1,6 @@
 /build/
 /OpenAL64.dll
 /lwjgl64.dll
-/assets/
 !/assets/Models/
 /dist/
 /nbproject/private/
