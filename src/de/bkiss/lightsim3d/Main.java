@@ -1,6 +1,8 @@
 package de.bkiss.lightsim3d;
 
 import com.jme3.app.SimpleApplication;
+import com.jme3.font.BitmapText;
+import com.jme3.font.LineWrapMode;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.math.ColorRGBA;
@@ -34,6 +36,7 @@ public class Main extends SimpleApplication {
         settings.setResolution(1024, 768);
         settings.setBitsPerPixel(24);
         settings.setFullscreen(false);
+        settings.setTitle("LightSim3D - simulation for light and material in 3D graphics");
         
         app.showSettings = false;
         app.setSettings(settings);
@@ -134,6 +137,16 @@ public class Main extends SimpleApplication {
         //getGeometry("table").getMaterial().setTexture("DiffuseMap", null);
         //getGeometry("table").getMaterial().setTexture("SpecularMap", null);
         //getGeometry("table").getMaterial().setTexture("NormalMap", null);
+        
+        //TEST: HUD Text
+        guiNode.detachAllChildren();
+        guiFont = assetManager.loadFont("Interface/Fonts/Calibri.fnt");
+        BitmapText text = new BitmapText(guiFont, false);
+        text.setSize(guiFont.getCharSet().getRenderedSize());
+        text.setLineWrapMode(LineWrapMode.Word);
+        text.setText("[SPACE] toggle this text overlay\n[A] Something\n[B] Something else");
+        text.setLocalTranslation(10, settings.getHeight() - 10, 0);
+        guiNode.attachChild(text);
     }
 
     @Override
