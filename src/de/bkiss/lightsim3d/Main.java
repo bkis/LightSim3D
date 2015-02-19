@@ -3,20 +3,18 @@ package de.bkiss.lightsim3d;
 import com.jme3.app.SimpleApplication;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
-import com.jme3.material.Material;
-import com.jme3.material.RenderState.BlendMode;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
-import com.jme3.renderer.queue.RenderQueue;
-import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.CameraNode;
+import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.CameraControl.ControlDirection;
 import com.jme3.shadow.DirectionalLightShadowRenderer;
 import com.jme3.system.AppSettings;
+import java.util.List;
 
 /**
  * Main class for LightSim3D
@@ -26,6 +24,7 @@ public class Main extends SimpleApplication {
     
     private CameraNode camNode;
     private Node camera;
+    private List<Spatial> spatials;
     
     
     public static void main(String[] args) {
@@ -101,6 +100,7 @@ public class Main extends SimpleApplication {
         
         //load scene
         Node scene = (Node) assetManager.loadModel("Scenes/scene.j3o");
+        spatials = scene.getChildren();
         scene.scale(0.05f);
         rootNode.attachChild(scene);
         
@@ -129,6 +129,11 @@ public class Main extends SimpleApplication {
         camNode.setLocalTranslation(new Vector3f(0, 6, -8));
         camNode.lookAt(new Vector3f(0,2,0), Vector3f.UNIT_Y);
         rootNode.attachChild(camera);
+        
+        //TEST
+        //getGeometry("table").getMaterial().setTexture("DiffuseMap", null);
+        //getGeometry("table").getMaterial().setTexture("SpecularMap", null);
+        //getGeometry("table").getMaterial().setTexture("NormalMap", null);
     }
 
     @Override
@@ -139,5 +144,12 @@ public class Main extends SimpleApplication {
     @Override
     public void simpleRender(RenderManager rm) {
         //TODO: add render code
+    }
+    
+    private Geometry getGeometry(String name){
+        for (Spatial s : spatials)
+            if (s.getName().equals(name))
+                return (Geometry) s;
+        return null;
     }
 }
