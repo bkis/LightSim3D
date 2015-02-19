@@ -8,6 +8,8 @@ import com.jme3.light.DirectionalLight;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
+import com.jme3.post.FilterPostProcessor;
+import com.jme3.post.filters.CartoonEdgeFilter;
 import com.jme3.renderer.RenderManager;
 import com.jme3.scene.CameraNode;
 import com.jme3.scene.Geometry;
@@ -16,6 +18,7 @@ import com.jme3.scene.Spatial;
 import com.jme3.scene.control.CameraControl.ControlDirection;
 import com.jme3.shadow.DirectionalLightShadowRenderer;
 import com.jme3.system.AppSettings;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -36,6 +39,7 @@ public class Main extends SimpleApplication {
         AppSettings settings = new AppSettings(true);
         settings.setResolution(1024, 768);
         settings.setBitsPerPixel(24);
+        settings.setVSync(true);
         settings.setFullscreen(false);
         settings.setTitle("LightSim3D - simulation for light and material in 3D graphics");
         
@@ -54,9 +58,12 @@ public class Main extends SimpleApplication {
 
         //load scene
         Node scene = (Node) assetManager.loadModel("Scenes/scene.j3o");
-        spatials = scene.getChildren();
         scene.scale(0.05f);
         rootNode.attachChild(scene);
+        
+        //generate scene objects list
+        spatials = new ArrayList<Spatial>(scene.getChildren());
+        spatials.add(scene); //add the scene itself to list
         
         //ambient light
         AmbientLight ambient = new AmbientLight();
@@ -88,6 +95,7 @@ public class Main extends SimpleApplication {
         //getGeometry("table").getMaterial().setTexture("DiffuseMap", null);
         //getGeometry("table").getMaterial().setTexture("SpecularMap", null);
         //getGeometry("table").getMaterial().setTexture("NormalMap", null);
+        
         
         //TEST: HUD Text
         guiNode.detachAllChildren();
