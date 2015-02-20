@@ -21,6 +21,8 @@ import com.jme3.scene.Spatial;
 import com.jme3.scene.control.CameraControl.ControlDirection;
 import com.jme3.shadow.DirectionalLightShadowRenderer;
 import com.jme3.system.AppSettings;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Main class for LightSim3D
@@ -28,16 +30,13 @@ import com.jme3.system.AppSettings;
  */
 public class Main extends SimpleApplication {
     
-    private Geometry highlightGeom;
-    private Material highlightGeomOrgMat;
+    private Set<Geometry> selected;
     private boolean highlight;
-    private long highlightTime;
-    
-    private Geometry selected;
+    private float highlightTime;
     
     private CameraNode camNode;
     private Node camera;
-    private LoopList<Spatial> spatials;
+    private LoopList<Geometry> geoms;
     
     public static void main(String[] args) {
         Main app = new Main();
@@ -51,6 +50,8 @@ public class Main extends SimpleApplication {
         settings.setTitle("LightSim3D - simulation for light and material in 3D graphics");
         
         app.showSettings = false;
+        app.setDisplayFps(true);
+        app.setDisplayStatView(false);
         app.setSettings(settings);
         app.start();
     }
@@ -62,6 +63,9 @@ public class Main extends SimpleApplication {
         //setup
         flyCam.setMoveSpeed(10f);
         flyCam.setEnabled(false);
+        
+        //register loaders
+        assetManager.registerLoader(TextLoader.class, "txt");
 
         //load scene
         Node scene = (Node) assetManager.loadModel("Scenes/scene.j3o");
@@ -69,7 +73,13 @@ public class Main extends SimpleApplication {
         rootNode.attachChild(scene);
         
         //generate scene objects list
-        spatials = new LoopList<Spatial>(scene.getChildren());
+        geoms = new LoopList<Geometry>();
+        for (Spatial s : scene.getChildren()){
+            if (s.getUserData("obj")){
+                geoms.add((Geometry) s);
+                s.setUserData("mat", ((Geometry)s).getMaterial().getAssetName());
+            }
+        }
         
         //ambient light
         AmbientLight ambient = new AmbientLight();
@@ -102,15 +112,11 @@ public class Main extends SimpleApplication {
         //getGeometry("table").getMaterial().setTexture("SpecularMap", null);
         //getGeometry("table").getMaterial().setTexture("NormalMap", null);
         
-        //TEST: HUD Text
-        guiNode.detachAllChildren();
-        guiFont = assetManager.loadFont("Interface/Fonts/Calibri.fnt");
-        BitmapText text = new BitmapText(guiFont, false);
-        text.setSize(guiFont.getCharSet().getRenderedSize());
-        text.setLineWrapMode(LineWrapMode.Word);
-        text.setText("[SPACE] toggle this text overlay\n[A] Something\n[B] Something else");
-        text.setLocalTranslation(10, settings.getHeight() - 10, 0);
-        guiNode.attachChild(text);
+        //load HUD
+        initHUD();
+        
+        //init selection set
+        selected = new HashSet<Geometry>();
         
         //load inputs
         initInputs();
@@ -122,9 +128,7 @@ public class Main extends SimpleApplication {
         camera.rotate(0, FastMath.DEG_TO_RAD*20*tpf, 0);
         
         //highlight timing
-        if (highlight &&
-                (getTimer().getTime()/getTimer().getResolution())
-                - (highlightTime/getTimer().getResolution()) > 0.5f){
+        if (highlight && (highlightTime+=tpf) > 0.5f){
             unhighlightGeom();
         }
     }
@@ -135,55 +139,73 @@ public class Main extends SimpleApplication {
     }
     
     private Geometry getGeometry(String name){
-        for (Spatial s : spatials)
+        for (Spatial s : geoms)
             if (s.getName().equals(name))
                 return (Geometry) s;
         return null;
     }
     
     private void highlightGeom(Geometry geom){
-        unhighlightGeom();
-        highlightGeom = geom;
-        highlightGeomOrgMat = geom.getMaterial();
+        selected.add(geom);
         geom.setMaterial(assetManager.loadMaterial("Materials/highlightMat.j3m"));
         highlight = true;
-        highlightTime = getTimer().getTime();
     }
     
     private void unhighlightGeom(){
+        highlightTime = 0;
         highlight = false;
-        if (highlightGeom != null && highlightGeomOrgMat != null){
-            highlightGeom.setMaterial(highlightGeomOrgMat);
-            highlightGeom = null;
-            highlightGeomOrgMat = null;
-        }
+        if (selected == null) return;
+        for(Geometry g : selected)
+            g.setMaterial(assetManager.loadMaterial((String)g.getUserData("mat")));
     }
     
     private void selectNextObject(){
-        selected = (Geometry) spatials.next();
-        highlightGeom(selected);
+        unhighlightGeom();
+        selected.clear();
+        highlightGeom((Geometry) geoms.next());
+    }
+    
+    private void selectAllObjects(){
+        selected.clear();
+        unhighlightGeom();
+        for (Spatial s : geoms){
+            highlightGeom((Geometry) s);
+        }
     }
     
     private void initInputs(){
-        inputManager.addMapping("SELECT_OBJECT",
-            new KeyTrigger(KeyInput.KEY_TAB));
-        inputManager.addListener(actionListener, "SELECT_OBJECT");
-        inputManager.addListener(analogListener, "My Action"); 
+        inputManager.addMapping("SELECT_OBJECT", new KeyTrigger(KeyInput.KEY_TAB));
+        inputManager.addMapping("SELECT_ALL", new KeyTrigger(KeyInput.KEY_A));
+        
+        inputManager.addListener(actionListener, "SELECT_OBJECT", "SELECT_ALL");
+        //inputManager.addListener(analogListener, "My Action"); 
     }
     
     private ActionListener actionListener = new ActionListener(){
         public void onAction(String name, boolean pressed, float tpf){
             if (name.equals("SELECT_OBJECT") && pressed){
                 selectNextObject();
+            } else if (name.equals("SELECT_ALL") && pressed){
+                selectAllObjects();
             }
         }
     };
-    
     
     private AnalogListener analogListener = new AnalogListener() {
         public void onAnalog(String name, float value, float tpf) {
             System.out.println(name + " = " + value);
         }
     };
+
+    private void initHUD() {
+        guiNode.detachAllChildren();
+        guiFont = assetManager.loadFont("Interface/Fonts/Consolas.fnt");
+        BitmapText text = new BitmapText(guiFont, false);
+        text.setSize(guiFont.getCharSet().getRenderedSize());
+        text.setLineWrapMode(LineWrapMode.Word);
+        text.setText(assetManager.loadAsset("Interface/hud.txt") + "");
+        text.setLocalTranslation(10, settings.getHeight() - 10, 0);
+        guiNode.attachChild(text);
+    }
     
 }
