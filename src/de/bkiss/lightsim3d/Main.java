@@ -53,6 +53,13 @@ public class Main extends SimpleApplication {
     private DirectionalLight sun;
     private ColorRGBA sunColor = new ColorRGBA(1f,1f,0.85f,1f).mult(1.5f);
     
+    private float camFrustumFar;
+    private float camFrustumNear;
+    private float camFrustumLeft;
+    private float camFrustumRight;
+    private float camFrustumBottom;
+    private float camFrustumTop;
+    
     
     public static void main(String[] args) {
         Main app = new Main();
@@ -273,8 +280,21 @@ public class Main extends SimpleApplication {
                     displayOnScreenMsg("Ambient light enabled");
                 }
             } else if (name.equals("TOGGLE_PARALLELP") && pressed){
-                cam.setParallelProjection(!cam.isParallelProjection());
-                displayOnScreenMsg("Parallel projection " + (cam.isParallelProjection() ? "enabled" : "disabled"));
+                if (!cam.isParallelProjection()){
+                    camFrustumNear = cam.getFrustumNear();
+                    camFrustumFar = cam.getFrustumFar();
+                    camFrustumLeft = cam.getFrustumLeft();
+                    camFrustumRight = cam.getFrustumRight();
+                    camFrustumBottom = cam.getFrustumBottom();
+                    camFrustumTop = cam.getFrustumTop();
+                    cam.setParallelProjection(true);
+                    cam.setFrustum(-100, 1000, -5, 5, 5, -5);
+                    displayOnScreenMsg("Parallel projection enabled");
+                } else {
+                    cam.setParallelProjection(false);
+                    cam.setFrustum(camFrustumNear, camFrustumFar, camFrustumLeft, camFrustumRight, camFrustumTop, camFrustumBottom);
+                    displayOnScreenMsg("Parallel projection disabled");
+                }
             }
         }
     };
