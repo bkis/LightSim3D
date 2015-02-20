@@ -1,11 +1,16 @@
 [SPACE] toggle this text
 
 [TAB]   select next object
-[A]     select all objects
+[Q]     select all objects
+
+[A]     toggle ambient light
+[L]     toggle directional light
+[S]     toggle shadows
 
 [C]     toggle auto camera
 [LEFT]  turn camera left
 [RIGHT] turn camera right
+[P]     toggle parallel projection
 
-[F]     toggle FPS display
-[S]     toggle stats display
+[F1]     toggle FPS display
+[F2]     toggle stats display

@@ -2,7 +2,6 @@ package de.bkiss.lightsim3d;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.font.BitmapText;
-import com.jme3.font.LineWrapMode;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.AnalogListener;
@@ -13,6 +12,7 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
+import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.CameraNode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
@@ -46,6 +46,13 @@ public class Main extends SimpleApplication {
     private static boolean hudEnabled = true;
     private static boolean isDisplayFps = false;
     private static boolean isDisplayStats = false;
+    
+    private DirectionalLightShadowRenderer dlsr;
+    private AmbientLight ambient;
+    private ColorRGBA ambColor = ColorRGBA.White.mult(3f);
+    private DirectionalLight sun;
+    private ColorRGBA sunColor = new ColorRGBA(1f,1f,0.85f,1f).mult(1.5f);
+    
     
     public static void main(String[] args) {
         Main app = new Main();
@@ -85,23 +92,24 @@ public class Main extends SimpleApplication {
         for (Spatial s : scene.getChildren()){
             if (s.getUserData("obj") != null){
                 geoms.add((Geometry) s);
+                s.setShadowMode(RenderQueue.ShadowMode.CastAndReceive);
                 s.setUserData("mat", ((Geometry)s).getMaterial().getAssetName());
             }
         }
         
         //ambient light
-        AmbientLight ambient = new AmbientLight();
-        ambient.setColor(ColorRGBA.White.mult(2f));
+        ambient = new AmbientLight();
+        ambient.setColor(ambColor);
         rootNode.addLight(ambient); 
         
         //sunlight
-        DirectionalLight sun = new DirectionalLight();
-        sun.setDirection((new Vector3f(-0.5f, -0.3f, -0.5f)).normalizeLocal());
-        sun.setColor(new ColorRGBA(1f,1f,0.85f,1f).mult(1.3f));
+        sun = new DirectionalLight();
+        sun.setDirection((new Vector3f(-0.5f, -0.4f, -0.5f)).normalizeLocal());
+        sun.setColor(sunColor);
         rootNode.addLight(sun); 
         
         //shadow renderer
-        DirectionalLightShadowRenderer dlsr = new DirectionalLightShadowRenderer(assetManager, 2048, 4);
+        dlsr = new DirectionalLightShadowRenderer(assetManager, 2048, 4);
         dlsr.setLight(sun);
         viewPort.addProcessor(dlsr); 
         
@@ -194,17 +202,25 @@ public class Main extends SimpleApplication {
     private void initInputs(){
         inputManager.addMapping("TOGGLE_HUD", new KeyTrigger(KeyInput.KEY_SPACE));
         inputManager.addMapping("SELECT_OBJECT", new KeyTrigger(KeyInput.KEY_TAB));
-        inputManager.addMapping("SELECT_ALL", new KeyTrigger(KeyInput.KEY_A));
-        inputManager.addMapping("TOGGLE_FPS", new KeyTrigger(KeyInput.KEY_F));
-        inputManager.addMapping("TOGGLE_STATS", new KeyTrigger(KeyInput.KEY_S));
+        inputManager.addMapping("SELECT_ALL", new KeyTrigger(KeyInput.KEY_Q));
+        inputManager.addMapping("TOGGLE_FPS", new KeyTrigger(KeyInput.KEY_F1));
+        inputManager.addMapping("TOGGLE_STATS", new KeyTrigger(KeyInput.KEY_F2));
         inputManager.addMapping("TOGGLE_AUTOCAM", new KeyTrigger(KeyInput.KEY_C));
+        inputManager.addMapping("TOGGLE_SHADOWS", new KeyTrigger(KeyInput.KEY_S));
+        inputManager.addMapping("TOGGLE_DIRLIGHT", new KeyTrigger(KeyInput.KEY_L));
+        inputManager.addMapping("TOGGLE_AMBLIGHT", new KeyTrigger(KeyInput.KEY_A));
+        inputManager.addMapping("TOGGLE_PARALLELP", new KeyTrigger(KeyInput.KEY_P));
         
         inputManager.addListener(actionListener, "SELECT_OBJECT",
                                                  "SELECT_ALL",
                                                  "TOGGLE_HUD",
                                                  "TOGGLE_FPS",
                                                  "TOGGLE_STATS",
-                                                 "TOGGLE_AUTOCAM");
+                                                 "TOGGLE_AUTOCAM",
+                                                 "TOGGLE_SHADOWS",
+                                                 "TOGGLE_DIRLIGHT",
+                                                 "TOGGLE_AMBLIGHT",
+                                                 "TOGGLE_PARALLELP");
         
         inputManager.addMapping("CAM_LEFT", new KeyTrigger(KeyInput.KEY_LEFT));
         inputManager.addMapping("CAM_RIGHT", new KeyTrigger(KeyInput.KEY_RIGHT));
@@ -231,6 +247,34 @@ public class Main extends SimpleApplication {
             } else if (name.equals("TOGGLE_AUTOCAM") && pressed){
                 autoCamEnabled = !autoCamEnabled;
                 displayOnScreenMsg("Automatic camera " + (autoCamEnabled ? "enabled" : "disabled"));
+            } else if (name.equals("TOGGLE_SHADOWS") && pressed){
+                if (viewPort.getProcessors().contains(dlsr)){
+                    viewPort.removeProcessor(dlsr);
+                } else {
+                    viewPort.addProcessor(dlsr);
+                }
+                displayOnScreenMsg("Shadow Processor " + (viewPort.getProcessors().contains(dlsr) ? "enabled" : "disabled"));
+            } else if (name.equals("TOGGLE_DIRLIGHT") && pressed){
+                if (!sun.getColor().equals(ColorRGBA.BlackNoAlpha)){
+                    sun.setColor(ColorRGBA.BlackNoAlpha);
+                    if (viewPort.getProcessors().contains(dlsr)) viewPort.removeProcessor(dlsr);
+                    displayOnScreenMsg("Directional light and shadow processor disabled");
+                } else {
+                    sun.setColor(sunColor);
+                    if (!viewPort.getProcessors().contains(dlsr)) viewPort.addProcessor(dlsr);
+                    displayOnScreenMsg("Directional light and shadow processor enabled");
+                }
+            } else if (name.equals("TOGGLE_AMBLIGHT") && pressed){
+                if (!ambient.getColor().equals(ColorRGBA.BlackNoAlpha)){
+                    ambient.setColor(ColorRGBA.BlackNoAlpha);
+                    displayOnScreenMsg("Ambient light disabled");
+                } else {
+                    ambient.setColor(ambColor);
+                    displayOnScreenMsg("Ambient light enabled");
+                }
+            } else if (name.equals("TOGGLE_PARALLELP") && pressed){
+                cam.setParallelProjection(!cam.isParallelProjection());
+                displayOnScreenMsg("Parallel projection " + (cam.isParallelProjection() ? "enabled" : "disabled"));
             }
         }
     };
