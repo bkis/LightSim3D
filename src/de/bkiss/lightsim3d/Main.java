@@ -9,7 +9,6 @@ import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
-import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
@@ -38,6 +37,10 @@ public class Main extends SimpleApplication {
     private Node camera;
     private LoopList<Geometry> geoms;
     
+    private static boolean hudEnabled = true;
+    private static boolean isDisplayFps = true;
+    private static boolean isDisplayStats = false;
+    
     public static void main(String[] args) {
         Main app = new Main();
         
@@ -50,8 +53,8 @@ public class Main extends SimpleApplication {
         settings.setTitle("LightSim3D - simulation for light and material in 3D graphics");
         
         app.showSettings = false;
-        app.setDisplayFps(true);
-        app.setDisplayStatView(false);
+        app.setDisplayFps(isDisplayFps);
+        app.setDisplayStatView(isDisplayStats);
         app.setSettings(settings);
         app.start();
     }
@@ -61,6 +64,7 @@ public class Main extends SimpleApplication {
     public void simpleInitApp() {
         
         //setup
+        guiFont = assetManager.loadFont("Interface/Fonts/Consolas.fnt");
         flyCam.setMoveSpeed(10f);
         flyCam.setEnabled(false);
         
@@ -113,7 +117,7 @@ public class Main extends SimpleApplication {
         //getGeometry("table").getMaterial().setTexture("NormalMap", null);
         
         //load HUD
-        initHUD();
+        setHUD(true);
         
         //init selection set
         selected = new HashSet<Geometry>();
@@ -174,10 +178,17 @@ public class Main extends SimpleApplication {
     }
     
     private void initInputs(){
+        inputManager.addMapping("TOGGLE_HUD", new KeyTrigger(KeyInput.KEY_SPACE));
         inputManager.addMapping("SELECT_OBJECT", new KeyTrigger(KeyInput.KEY_TAB));
         inputManager.addMapping("SELECT_ALL", new KeyTrigger(KeyInput.KEY_A));
+        inputManager.addMapping("TOGGLE_FPS", new KeyTrigger(KeyInput.KEY_F));
+        inputManager.addMapping("TOGGLE_STATS", new KeyTrigger(KeyInput.KEY_S));
         
-        inputManager.addListener(actionListener, "SELECT_OBJECT", "SELECT_ALL");
+        inputManager.addListener(actionListener, "SELECT_OBJECT",
+                                                 "SELECT_ALL",
+                                                 "TOGGLE_HUD",
+                                                 "TOGGLE_FPS",
+                                                 "TOGGLE_STATS");
         //inputManager.addListener(analogListener, "My Action"); 
     }
     
@@ -187,6 +198,12 @@ public class Main extends SimpleApplication {
                 selectNextObject();
             } else if (name.equals("SELECT_ALL") && pressed){
                 selectAllObjects();
+            } else if (name.equals("TOGGLE_HUD") && pressed){
+                setHUD(hudEnabled = !hudEnabled);
+            } else if (name.equals("TOGGLE_FPS") && pressed){
+                setDisplayFps(isDisplayFps = !isDisplayFps);
+            } else if (name.equals("TOGGLE_STATS") && pressed){
+                setDisplayStatView(isDisplayStats = !isDisplayStats);
             }
         }
     };
@@ -197,14 +214,25 @@ public class Main extends SimpleApplication {
         }
     };
 
-    private void initHUD() {
-        guiNode.detachAllChildren();
-        guiFont = assetManager.loadFont("Interface/Fonts/Consolas.fnt");
+    private void setHUD(boolean show) {
+        if (show){
+            BitmapText text = new BitmapText(guiFont, false);
+            text.setSize(guiFont.getCharSet().getRenderedSize());
+            text.setText(assetManager.loadAsset("Interface/hud.txt") + "");
+            text.setLocalTranslation(10, settings.getHeight() - 10, 0);
+            text.setName("hud");
+            guiNode.attachChild(text);
+        } else {
+            guiNode.detachChildNamed("hud");
+        }
+    }
+    
+    private void displayOnScreenMsg(String msg){
         BitmapText text = new BitmapText(guiFont, false);
         text.setSize(guiFont.getCharSet().getRenderedSize());
-        text.setLineWrapMode(LineWrapMode.Word);
-        text.setText(assetManager.loadAsset("Interface/hud.txt") + "");
+        text.setText(msg);
         text.setLocalTranslation(10, settings.getHeight() - 10, 0);
+        text.setName("hud");
         guiNode.attachChild(text);
     }
     
