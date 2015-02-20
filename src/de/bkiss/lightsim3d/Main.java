@@ -3,13 +3,16 @@ package de.bkiss.lightsim3d;
 import com.jme3.app.SimpleApplication;
 import com.jme3.font.BitmapText;
 import com.jme3.font.LineWrapMode;
+import com.jme3.input.KeyInput;
+import com.jme3.input.controls.ActionListener;
+import com.jme3.input.controls.AnalogListener;
+import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
+import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
-import com.jme3.post.FilterPostProcessor;
-import com.jme3.post.filters.CartoonEdgeFilter;
 import com.jme3.renderer.RenderManager;
 import com.jme3.scene.CameraNode;
 import com.jme3.scene.Geometry;
@@ -18,8 +21,6 @@ import com.jme3.scene.Spatial;
 import com.jme3.scene.control.CameraControl.ControlDirection;
 import com.jme3.shadow.DirectionalLightShadowRenderer;
 import com.jme3.system.AppSettings;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Main class for LightSim3D
@@ -27,10 +28,16 @@ import java.util.List;
  */
 public class Main extends SimpleApplication {
     
+    private Geometry highlightGeom;
+    private Material highlightGeomOrgMat;
+    private boolean highlight;
+    private long highlightTime;
+    
+    private Geometry selected;
+    
     private CameraNode camNode;
     private Node camera;
-    private List<Spatial> spatials;
-    
+    private LoopList<Spatial> spatials;
     
     public static void main(String[] args) {
         Main app = new Main();
@@ -62,8 +69,7 @@ public class Main extends SimpleApplication {
         rootNode.attachChild(scene);
         
         //generate scene objects list
-        spatials = new ArrayList<Spatial>(scene.getChildren());
-        spatials.add(scene); //add the scene itself to list
+        spatials = new LoopList<Spatial>(scene.getChildren());
         
         //ambient light
         AmbientLight ambient = new AmbientLight();
@@ -96,7 +102,6 @@ public class Main extends SimpleApplication {
         //getGeometry("table").getMaterial().setTexture("SpecularMap", null);
         //getGeometry("table").getMaterial().setTexture("NormalMap", null);
         
-        
         //TEST: HUD Text
         guiNode.detachAllChildren();
         guiFont = assetManager.loadFont("Interface/Fonts/Calibri.fnt");
@@ -106,11 +111,22 @@ public class Main extends SimpleApplication {
         text.setText("[SPACE] toggle this text overlay\n[A] Something\n[B] Something else");
         text.setLocalTranslation(10, settings.getHeight() - 10, 0);
         guiNode.attachChild(text);
+        
+        //load inputs
+        initInputs();
     }
 
     @Override
     public void simpleUpdate(float tpf) {
+        //camera rotation
         camera.rotate(0, FastMath.DEG_TO_RAD*20*tpf, 0);
+        
+        //highlight timing
+        if (highlight &&
+                (getTimer().getTime()/getTimer().getResolution())
+                - (highlightTime/getTimer().getResolution()) > 0.5f){
+            unhighlightGeom();
+        }
     }
 
     @Override
@@ -125,7 +141,49 @@ public class Main extends SimpleApplication {
         return null;
     }
     
-    private void initInputs(){
-        //TODO
+    private void highlightGeom(Geometry geom){
+        unhighlightGeom();
+        highlightGeom = geom;
+        highlightGeomOrgMat = geom.getMaterial();
+        geom.setMaterial(assetManager.loadMaterial("Materials/highlightMat.j3m"));
+        highlight = true;
+        highlightTime = getTimer().getTime();
     }
+    
+    private void unhighlightGeom(){
+        highlight = false;
+        if (highlightGeom != null && highlightGeomOrgMat != null){
+            highlightGeom.setMaterial(highlightGeomOrgMat);
+            highlightGeom = null;
+            highlightGeomOrgMat = null;
+        }
+    }
+    
+    private void selectNextObject(){
+        selected = (Geometry) spatials.next();
+        highlightGeom(selected);
+    }
+    
+    private void initInputs(){
+        inputManager.addMapping("SELECT_OBJECT",
+            new KeyTrigger(KeyInput.KEY_TAB));
+        inputManager.addListener(actionListener, "SELECT_OBJECT");
+        inputManager.addListener(analogListener, "My Action"); 
+    }
+    
+    private ActionListener actionListener = new ActionListener(){
+        public void onAction(String name, boolean pressed, float tpf){
+            if (name.equals("SELECT_OBJECT") && pressed){
+                selectNextObject();
+            }
+        }
+    };
+    
+    
+    private AnalogListener analogListener = new AnalogListener() {
+        public void onAnalog(String name, float value, float tpf) {
+            System.out.println(name + " = " + value);
+        }
+    };
+    
 }
