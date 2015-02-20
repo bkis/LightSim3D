@@ -8,8 +8,10 @@ import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
+import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
+import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.queue.RenderQueue;
@@ -18,8 +20,10 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.CameraControl.ControlDirection;
+import com.jme3.scene.shape.Quad;
 import com.jme3.shadow.DirectionalLightShadowRenderer;
 import com.jme3.system.AppSettings;
+import com.jme3.texture.Texture;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -88,6 +92,19 @@ public class Main extends SimpleApplication {
         
         //register loaders
         assetManager.registerLoader(TextLoader.class, "txt");
+        
+        //load ground plane
+        Quad quad = new Quad(200, 200);
+        quad.scaleTextureCoordinates(new Vector2f(20, 20));
+        Geometry ground = new Geometry("ground", quad);
+        ground.setShadowMode(RenderQueue.ShadowMode.Receive);
+        Texture groundTex = assetManager.loadTexture("Textures/grass.jpg");
+        groundTex.setWrap(Texture.WrapMode.Repeat);
+        ground.setMaterial(new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md"));
+        ground.getMaterial().setTexture("DiffuseMap", groundTex);
+        ground.rotate(FastMath.DEG_TO_RAD*-90, 0, 0);
+        ground.setLocalTranslation(-100, 0, 100);
+        rootNode.attachChild(ground);
 
         //load scene
         Node scene = (Node) assetManager.loadModel("Scenes/scene.j3o");
@@ -126,8 +143,8 @@ public class Main extends SimpleApplication {
         camNode = new CameraNode("Camera Node", cam);
         camNode.setControlDir(ControlDirection.SpatialToCamera);
         camera.attachChild(camNode);
-        camNode.setLocalTranslation(new Vector3f(0, 6, -8));
-        camNode.lookAt(new Vector3f(0,2,0), Vector3f.UNIT_Y);
+        camNode.setLocalTranslation(new Vector3f(0, 5, -8));
+        camNode.lookAt(new Vector3f(0,1,0), Vector3f.UNIT_Y);
         rootNode.attachChild(camera);
         
         //TEST: manipulate materials
