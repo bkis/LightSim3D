@@ -1,7 +1,6 @@
 package de.bkiss.lightsim3d;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  *
@@ -11,8 +10,8 @@ public class LoopList<T> extends ArrayList<T>{
     
     private int pointer;
     
-    public LoopList(List<T> list){
-        super(list);
+    public LoopList(){
+        super();
         pointer = 0;
     }
     
