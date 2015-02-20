@@ -2,3 +2,6 @@
 
 [TAB]   select next object
 [A]     select all objects
+
+[F]     toggle FPS display
+[S]     toggle stats display

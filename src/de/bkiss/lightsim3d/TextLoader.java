@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package de.bkiss.lightsim3d;
 
 import com.jme3.asset.AssetInfo;
@@ -23,7 +19,7 @@ public class TextLoader implements AssetLoader {
                 sb.append(scan.nextLine()).append("\n");
             }
         } finally {
-        scan.close();
+            scan.close();
         }
         return sb.toString();
     }
