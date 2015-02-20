@@ -76,7 +76,7 @@ public class Main extends SimpleApplication {
         settings.setFullscreen(false);
         settings.setTitle("LightSim3D - simulation for light and material in 3D graphics");
         
-        app.showSettings = false;
+        app.showSettings = true;
         app.setDisplayFps(isDisplayFps);
         app.setDisplayStatView(isDisplayStats);
         app.setSettings(settings);

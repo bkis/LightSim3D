@@ -12,5 +12,5 @@
 [RIGHT] turn camera right
 [P]     toggle parallel projection
 
-[F1]     toggle FPS display
-[F2]     toggle stats display
+[F1]    toggle FPS display
+[F2]    toggle stats display
