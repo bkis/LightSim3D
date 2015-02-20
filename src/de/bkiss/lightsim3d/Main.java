@@ -83,7 +83,7 @@ public class Main extends SimpleApplication {
         //generate scene objects list
         geoms = new LoopList<Geometry>();
         for (Spatial s : scene.getChildren()){
-            if (s.getUserData("obj")){
+            if (s.getUserData("obj") != null){
                 geoms.add((Geometry) s);
                 s.setUserData("mat", ((Geometry)s).getMaterial().getAssetName());
             }
