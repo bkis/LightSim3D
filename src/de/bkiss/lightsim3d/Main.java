@@ -33,6 +33,9 @@ public class Main extends SimpleApplication {
     private boolean highlight;
     private float highlightTime;
     
+    private boolean isOnScreenMsg;
+    private float onScreenMsgTime;
+    
     private CameraNode camNode;
     private Node camera;
     private LoopList<Geometry> geoms;
@@ -58,13 +61,11 @@ public class Main extends SimpleApplication {
         app.setSettings(settings);
         app.start();
     }
-    
 
     @Override
     public void simpleInitApp() {
         
         //setup
-        guiFont = assetManager.loadFont("Interface/Fonts/Consolas.fnt");
         flyCam.setMoveSpeed(10f);
         flyCam.setEnabled(false);
         
@@ -135,6 +136,12 @@ public class Main extends SimpleApplication {
         if (highlight && (highlightTime+=tpf) > 0.5f){
             unhighlightGeom();
         }
+        
+        //onscreen msg timing
+        if (isOnScreenMsg && (onScreenMsgTime+=tpf) > 2){
+            guiNode.detachChildNamed("msg");
+            isOnScreenMsg = false;
+        }
     }
 
     @Override
@@ -167,6 +174,7 @@ public class Main extends SimpleApplication {
         unhighlightGeom();
         selected.clear();
         highlightGeom((Geometry) geoms.next());
+        displayOnScreenMsg("Selected: Single Object");
     }
     
     private void selectAllObjects(){
@@ -175,6 +183,7 @@ public class Main extends SimpleApplication {
         for (Spatial s : geoms){
             highlightGeom((Geometry) s);
         }
+        displayOnScreenMsg("Selected: All Objects");
     }
     
     private void initInputs(){
@@ -216,10 +225,11 @@ public class Main extends SimpleApplication {
 
     private void setHUD(boolean show) {
         if (show){
+            guiFont = assetManager.loadFont("Interface/Fonts/Consolas.fnt");
             BitmapText text = new BitmapText(guiFont, false);
             text.setSize(guiFont.getCharSet().getRenderedSize());
             text.setText(assetManager.loadAsset("Interface/hud.txt") + "");
-            text.setLocalTranslation(10, settings.getHeight() - 10, 0);
+            text.setLocalTranslation(10, cam.getHeight() - 10, 0);
             text.setName("hud");
             guiNode.attachChild(text);
         } else {
@@ -228,12 +238,16 @@ public class Main extends SimpleApplication {
     }
     
     private void displayOnScreenMsg(String msg){
+        onScreenMsgTime = 0;
+        guiNode.detachChildNamed("msg");
+        guiFont = assetManager.loadFont("Interface/Fonts/Calibri.fnt");
         BitmapText text = new BitmapText(guiFont, false);
         text.setSize(guiFont.getCharSet().getRenderedSize());
         text.setText(msg);
-        text.setLocalTranslation(10, settings.getHeight() - 10, 0);
-        text.setName("hud");
+        text.setLocalTranslation((cam.getWidth()/2)-(text.getLineWidth()/2), 50, 0);
+        text.setName("msg");
         guiNode.attachChild(text);
+        isOnScreenMsg = true;
     }
     
 }
