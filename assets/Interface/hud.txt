@@ -3,5 +3,9 @@
 [TAB]   select next object
 [A]     select all objects
 
+[C]     toggle auto camera
+[LEFT]  turn camera left
+[RIGHT] turn camera right
+
 [F]     toggle FPS display
 [S]     toggle stats display

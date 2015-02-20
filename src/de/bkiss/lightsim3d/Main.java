@@ -29,11 +29,14 @@ import java.util.Set;
  */
 public class Main extends SimpleApplication {
     
+    private boolean autoCamEnabled = true;
+    private boolean manualCamMovement = false;
+    
     private Set<Geometry> selected;
-    private boolean highlight;
+    private boolean highlight = false;
     private float highlightTime;
     
-    private boolean isOnScreenMsg;
+    private boolean isOnScreenMsg = false;
     private float onScreenMsgTime;
     
     private CameraNode camNode;
@@ -41,7 +44,7 @@ public class Main extends SimpleApplication {
     private LoopList<Geometry> geoms;
     
     private static boolean hudEnabled = true;
-    private static boolean isDisplayFps = true;
+    private static boolean isDisplayFps = false;
     private static boolean isDisplayStats = false;
     
     public static void main(String[] args) {
@@ -130,7 +133,9 @@ public class Main extends SimpleApplication {
     @Override
     public void simpleUpdate(float tpf) {
         //camera rotation
-        camera.rotate(0, FastMath.DEG_TO_RAD*20*tpf, 0);
+        if (autoCamEnabled && !manualCamMovement)
+            camera.rotate(0, FastMath.DEG_TO_RAD*20*tpf, 0);
+        manualCamMovement = false;
         
         //highlight timing
         if (highlight && (highlightTime+=tpf) > 0.5f){
@@ -192,13 +197,20 @@ public class Main extends SimpleApplication {
         inputManager.addMapping("SELECT_ALL", new KeyTrigger(KeyInput.KEY_A));
         inputManager.addMapping("TOGGLE_FPS", new KeyTrigger(KeyInput.KEY_F));
         inputManager.addMapping("TOGGLE_STATS", new KeyTrigger(KeyInput.KEY_S));
+        inputManager.addMapping("TOGGLE_AUTOCAM", new KeyTrigger(KeyInput.KEY_C));
         
         inputManager.addListener(actionListener, "SELECT_OBJECT",
                                                  "SELECT_ALL",
                                                  "TOGGLE_HUD",
                                                  "TOGGLE_FPS",
-                                                 "TOGGLE_STATS");
-        //inputManager.addListener(analogListener, "My Action"); 
+                                                 "TOGGLE_STATS",
+                                                 "TOGGLE_AUTOCAM");
+        
+        inputManager.addMapping("CAM_LEFT", new KeyTrigger(KeyInput.KEY_LEFT));
+        inputManager.addMapping("CAM_RIGHT", new KeyTrigger(KeyInput.KEY_RIGHT));
+        
+        inputManager.addListener(analogListener, "CAM_LEFT",
+                                                 "CAM_RIGHT"); 
     }
     
     private ActionListener actionListener = new ActionListener(){
@@ -209,17 +221,29 @@ public class Main extends SimpleApplication {
                 selectAllObjects();
             } else if (name.equals("TOGGLE_HUD") && pressed){
                 setHUD(hudEnabled = !hudEnabled);
+                displayOnScreenMsg("Controls display " + (hudEnabled ? "enabled" : "disabled"));
             } else if (name.equals("TOGGLE_FPS") && pressed){
                 setDisplayFps(isDisplayFps = !isDisplayFps);
+                displayOnScreenMsg("FPS display " + (isDisplayFps ? "enabled" : "disabled"));
             } else if (name.equals("TOGGLE_STATS") && pressed){
                 setDisplayStatView(isDisplayStats = !isDisplayStats);
+                displayOnScreenMsg("Stats display " + (isDisplayStats ? "enabled" : "disabled"));
+            } else if (name.equals("TOGGLE_AUTOCAM") && pressed){
+                autoCamEnabled = !autoCamEnabled;
+                displayOnScreenMsg("Automatic camera " + (autoCamEnabled ? "enabled" : "disabled"));
             }
         }
     };
     
     private AnalogListener analogListener = new AnalogListener() {
         public void onAnalog(String name, float value, float tpf) {
-            System.out.println(name + " = " + value);
+            if (name.equals("CAM_LEFT")){
+                manualCamMovement = true;
+                camera.rotate(0, FastMath.DEG_TO_RAD*50*tpf, 0);
+            } else if (name.equals("CAM_RIGHT")){
+                manualCamMovement = true;
+                camera.rotate(0, FastMath.DEG_TO_RAD*-50*tpf, 0);
+            }
         }
     };
 
