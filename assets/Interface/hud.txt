@@ -1,0 +1,4 @@
+[SPACE] toggle this text
+
+[TAB]   select next object
+[A]     select all objects
