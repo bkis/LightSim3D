@@ -20,7 +20,6 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.control.CameraControl.ControlDirection;
 import com.jme3.scene.shape.Quad;
-import com.jme3.scene.shape.Sphere;
 import com.jme3.shadow.DirectionalLightShadowRenderer;
 import com.jme3.shadow.EdgeFilteringMode;
 import com.jme3.system.AppSettings;
@@ -128,7 +127,7 @@ public class Main extends SimpleApplication {
         
         //ambient light
         ambient = new AmbientLight();
-        ambient.setColor(ambColor);
+        ambient.setColor(ColorRGBA.BlackNoAlpha);
         rootNode.addLight(ambient); 
         
         //directional light
