@@ -55,6 +55,7 @@ public class Main extends SimpleApplication {
     private static boolean isDisplayStats = false;
     
     private DirectionalLightShadowRenderer dlsr;
+    private LoopList<EdgeFilteringMode> shadowQualities;
     private AmbientLight ambient;
     private ColorRGBA ambColor = ColorRGBA.White.mult(3f);
     private DirectionalLight sun;
@@ -77,7 +78,8 @@ public class Main extends SimpleApplication {
         settings.setBitsPerPixel(24);
         settings.setVSync(true);
         settings.setFullscreen(false);
-        settings.setTitle("LightSim3D - simulation for light and material in 3D graphics");
+        settings.setTitle("LightSim3D - simulation for light"
+                + "and material in 3D graphics");
         
         app.showSettings = true;
         app.setDisplayFps(isDisplayFps);
@@ -136,9 +138,14 @@ public class Main extends SimpleApplication {
         rootNode.addLight(sun); 
         
         //shadow renderer
+        shadowQualities = new LoopList<EdgeFilteringMode>();
+        shadowQualities.add(EdgeFilteringMode.PCF4);
+        shadowQualities.add(EdgeFilteringMode.PCF8);
+        shadowQualities.add(EdgeFilteringMode.Nearest);
+        shadowQualities.add(EdgeFilteringMode.Dither);
         dlsr = new DirectionalLightShadowRenderer(assetManager, 2048, 4);
         dlsr.setLight(sun);
-        dlsr.setEdgeFilteringMode(EdgeFilteringMode.PCF8);
+        dlsr.setEdgeFilteringMode(EdgeFilteringMode.PCF4);
         viewPort.addProcessor(dlsr); 
         
         //camera node
@@ -235,6 +242,7 @@ public class Main extends SimpleApplication {
         inputManager.addMapping("TOGGLE_STATS", new KeyTrigger(KeyInput.KEY_F2));
         inputManager.addMapping("TOGGLE_AUTOCAM", new KeyTrigger(KeyInput.KEY_C));
         inputManager.addMapping("TOGGLE_SHADOWS", new KeyTrigger(KeyInput.KEY_S));
+        inputManager.addMapping("SHADOW_MODE", new KeyTrigger(KeyInput.KEY_M));
         inputManager.addMapping("TOGGLE_DIRLIGHT", new KeyTrigger(KeyInput.KEY_L));
         inputManager.addMapping("TOGGLE_AMBLIGHT", new KeyTrigger(KeyInput.KEY_A));
         inputManager.addMapping("TOGGLE_PARALLELP", new KeyTrigger(KeyInput.KEY_P));
@@ -248,7 +256,8 @@ public class Main extends SimpleApplication {
                                                  "TOGGLE_SHADOWS",
                                                  "TOGGLE_DIRLIGHT",
                                                  "TOGGLE_AMBLIGHT",
-                                                 "TOGGLE_PARALLELP");
+                                                 "TOGGLE_PARALLELP",
+                                                 "SHADOW_MODE");
         
         inputManager.addMapping("CAM_LEFT", new KeyTrigger(KeyInput.KEY_LEFT));
         inputManager.addMapping("CAM_RIGHT", new KeyTrigger(KeyInput.KEY_RIGHT));
@@ -282,6 +291,9 @@ public class Main extends SimpleApplication {
                     viewPort.addProcessor(dlsr);
                 }
                 displayOnScreenMsg("Shadow Processor " + (viewPort.getProcessors().contains(dlsr) ? "enabled" : "disabled"));
+            } else if (name.equals("SHADOW_MODE") && pressed){
+                cycleShadowQuality();
+                displayOnScreenMsg("Shadow Mode: " + dlsr.getEdgeFilteringMode().name());
             } else if (name.equals("TOGGLE_DIRLIGHT") && pressed){
                 if (!sun.getColor().equals(ColorRGBA.BlackNoAlpha)){
                     sun.setColor(ColorRGBA.BlackNoAlpha);
@@ -309,7 +321,7 @@ public class Main extends SimpleApplication {
                     camFrustumBottom = cam.getFrustumBottom();
                     camFrustumTop = cam.getFrustumTop();
                     cam.setParallelProjection(true);
-                    cam.setFrustum(-100, 1000, -5, 5, 5, -5);
+                    cam.setFrustum(-100, 1000, -5, 5, 3.5f, -3.5f);
                     displayOnScreenMsg("Parallel projection enabled");
                 } else {
                     cam.setParallelProjection(false);
@@ -357,6 +369,10 @@ public class Main extends SimpleApplication {
         text.setName("msg");
         guiNode.attachChild(text);
         isOnScreenMsg = true;
+    }
+    
+    private void cycleShadowQuality(){
+        dlsr.setEdgeFilteringMode(shadowQualities.next());
     }
     
 }

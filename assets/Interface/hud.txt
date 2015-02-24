@@ -6,6 +6,7 @@
 [A]     toggle ambient light
 [L]     toggle directional light
 [S]     toggle shadows
+[M]     cycle shadow mode
 
 [C]     toggle auto camera
 [LEFT]  turn camera left
