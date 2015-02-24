@@ -1,7 +1,7 @@
 [SPACE] toggle this controls display
 
-[UP]    increase sphere shininess
-[DOWN]  decrease sphere shininess
+[UP]    increase apple shininess
+[DOWN]  decrease apple shininess
 
 [A]     toggle ambient light
 [L]     toggle directional light

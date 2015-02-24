@@ -32,7 +32,7 @@ import com.jme3.texture.Texture;
  */
 public class Main extends SimpleApplication {
     
-    private Geometry sphere;
+    private Geometry apple;
     private float sphereShininess = 30;
     
     private boolean autoCamEnabled = true;
@@ -112,19 +112,19 @@ public class Main extends SimpleApplication {
         rootNode.attachChild(scene);
         
         //generate sphere
-        Sphere sphereMesh = new Sphere(32,32, 1f);
-        sphere = new Geometry("Shiny rock", sphereMesh);
-        sphere.setName("sphere");
-        sphere.move(1, 3.5f, 0);
-        sphere.setShadowMode(RenderQueue.ShadowMode.CastAndReceive);
+        apple = (Geometry) assetManager.loadModel("Models/Apple/apple.j3o");
+        apple.setName("apple");
+        apple.scale(0.03f);
+        apple.move(-1, 2.5f, 0);
+        apple.setShadowMode(RenderQueue.ShadowMode.CastAndReceive);
         Material shinyMat = new Material( assetManager, "Common/MatDefs/Light/Lighting.j3md");
         shinyMat.setBoolean("UseMaterialColors", true);
         shinyMat.setColor("Specular", ColorRGBA.White);
         shinyMat.setColor("Diffuse",  ColorRGBA.Red);
         shinyMat.setColor("Ambient",  ColorRGBA.Red);
         shinyMat.setFloat("Shininess", sphereShininess);
-        sphere.setMaterial(shinyMat);
-        rootNode.attachChild(sphere);
+        apple.setMaterial(shinyMat);
+        rootNode.attachChild(apple);
         
         //ambient light
         ambient = new AmbientLight();
@@ -290,11 +290,11 @@ public class Main extends SimpleApplication {
                 camera.rotate(0, FastMath.DEG_TO_RAD*-50*tpf, 0);
             } else if (name.equals("SHINY_PLUS")){
                 if (sphereShininess < 128 - 20*tpf) sphereShininess += 20*tpf;
-                sphere.getMaterial().setFloat("Shininess", sphereShininess);
+                apple.getMaterial().setFloat("Shininess", sphereShininess);
                 displayOnScreenMsg("Sphere Shininess: " + (int)sphereShininess);
             } else if (name.equals("SHINY_MINUS")){
                 if (sphereShininess > 0 + 20*tpf) sphereShininess -= 20*tpf;
-                sphere.getMaterial().setFloat("Shininess", sphereShininess);
+                apple.getMaterial().setFloat("Shininess", sphereShininess);
                 displayOnScreenMsg("Sphere Shininess: " + (int)sphereShininess);
             }
         }
