@@ -13,6 +13,7 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
+import com.jme3.post.FilterPostProcessor;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.CameraNode;
@@ -21,7 +22,9 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.CameraControl.ControlDirection;
 import com.jme3.scene.shape.Quad;
+import com.jme3.shadow.DirectionalLightShadowFilter;
 import com.jme3.shadow.DirectionalLightShadowRenderer;
+import com.jme3.shadow.EdgeFilteringMode;
 import com.jme3.system.AppSettings;
 import com.jme3.texture.Texture;
 import java.util.HashSet;
@@ -55,7 +58,7 @@ public class Main extends SimpleApplication {
     private AmbientLight ambient;
     private ColorRGBA ambColor = ColorRGBA.White.mult(3f);
     private DirectionalLight sun;
-    private ColorRGBA sunColor = new ColorRGBA(1f,1f,0.85f,1f).mult(1.5f);
+    private ColorRGBA sunColor = new ColorRGBA(1f,1f,0.85f,1f).mult(1.1f);
     
     private float camFrustumFar;
     private float camFrustumNear;
@@ -126,7 +129,7 @@ public class Main extends SimpleApplication {
         ambient.setColor(ambColor);
         rootNode.addLight(ambient); 
         
-        //sunlight
+        //directional light
         sun = new DirectionalLight();
         sun.setDirection((new Vector3f(-0.5f, -0.4f, -0.5f)).normalizeLocal());
         sun.setColor(sunColor);
@@ -135,6 +138,7 @@ public class Main extends SimpleApplication {
         //shadow renderer
         dlsr = new DirectionalLightShadowRenderer(assetManager, 2048, 4);
         dlsr.setLight(sun);
+        dlsr.setEdgeFilteringMode(EdgeFilteringMode.PCF8);
         viewPort.addProcessor(dlsr); 
         
         //camera node

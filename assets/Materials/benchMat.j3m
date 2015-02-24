@@ -1,8 +1,8 @@
 Material benchMat : Common/MatDefs/Light/Lighting.j3md {
      MaterialParameters {
         DiffuseMap : Flip Models/Bench/diffuse.jpg
-        SpecularMap : Flip Models/Bench/specular.jpg
         NormalMap : Flip Models/Bench/normal.jpg
+        SpecularMap : Flip Models/Bench/specular.jpg
      }
     AdditionalRenderState {
     }

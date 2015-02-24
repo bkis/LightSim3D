@@ -1,0 +1,26 @@
+Material ballMat : Common/MatDefs/Light/Lighting.j3md {
+     MaterialParameters {
+        Shininess : 100.0
+        ShadowIntensity : 0.0
+        UseMaterialColors : false
+        Diffuse : 1.0 0.4 0.0 1.0
+        Specular : 1.0 1.0 1.0 1.0
+        DiffuseMap : Models/Ball/diffuse.jpg
+        GlowColor : 1.0 1.0 1.0 0
+        Ambient : 1.0 1.0 1.0 0
+        UseVertexColor : false
+        Minnaert : false
+        VertexLighting : false
+        UseAlpha : false
+        LATC : false
+        HighQuality : false
+        VTangent : false
+        SteepParallax : false
+        PackedNormalParallax : false
+        ShadowMapSize : 0.0
+        SeparateTexCoord : false
+        EnvMapAsSphereMap : false
+     }
+    AdditionalRenderState {
+    }
+}
