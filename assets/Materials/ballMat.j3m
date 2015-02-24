@@ -20,7 +20,6 @@ Material ballMat : Common/MatDefs/Light/Lighting.j3md {
         ShadowMapSize : 0.0
         SeparateTexCoord : false
         EnvMapAsSphereMap : false
-        NormalMap : Models/Ball/normal.jpg
      }
     AdditionalRenderState {
     }

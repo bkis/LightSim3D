@@ -1,14 +1,14 @@
-[SPACE] toggle this text
+[SPACE] toggle this controls display
 
-[TAB]   select next object
-[Q]     select all objects
+[UP]    increase sphere shininess
+[DOWN]  decrease sphere shininess
 
 [A]     toggle ambient light
 [L]     toggle directional light
 [S]     toggle shadows
 [M]     cycle shadow mode
 
-[C]     toggle auto camera
+[C]     toggle auto camera movement
 [LEFT]  turn camera left
 [RIGHT] turn camera right
 [P]     toggle parallel projection

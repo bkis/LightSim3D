@@ -13,42 +13,36 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
-import com.jme3.post.FilterPostProcessor;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.CameraNode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
-import com.jme3.scene.Spatial;
 import com.jme3.scene.control.CameraControl.ControlDirection;
 import com.jme3.scene.shape.Quad;
-import com.jme3.shadow.DirectionalLightShadowFilter;
+import com.jme3.scene.shape.Sphere;
 import com.jme3.shadow.DirectionalLightShadowRenderer;
 import com.jme3.shadow.EdgeFilteringMode;
 import com.jme3.system.AppSettings;
 import com.jme3.texture.Texture;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Main class for LightSim3D
- * @author Börge Kiss
+ * @author bkiss
  */
 public class Main extends SimpleApplication {
     
+    private Geometry sphere;
+    private float sphereShininess = 30;
+    
     private boolean autoCamEnabled = true;
     private boolean manualCamMovement = false;
-    
-    private Set<Geometry> selected;
-    private boolean highlight = false;
-    private float highlightTime;
     
     private boolean isOnScreenMsg = false;
     private float onScreenMsgTime;
     
     private CameraNode camNode;
     private Node camera;
-    private LoopList<Geometry> geoms;
     
     private static boolean hudEnabled = true;
     private static boolean isDisplayFps = false;
@@ -75,8 +69,9 @@ public class Main extends SimpleApplication {
         //configure settings
         AppSettings settings = new AppSettings(true);
         settings.setResolution(1024, 768);
+        settings.setMinResolution(1024, 768);
         settings.setBitsPerPixel(24);
-        settings.setVSync(true);
+        settings.setVSync(false);
         settings.setFullscreen(false);
         settings.setTitle("LightSim3D - simulation for light"
                 + "and material in 3D graphics");
@@ -116,15 +111,20 @@ public class Main extends SimpleApplication {
         scene.scale(0.05f);
         rootNode.attachChild(scene);
         
-        //generate scene objects list
-        geoms = new LoopList<Geometry>();
-        for (Spatial s : scene.getChildren()){
-            if (s.getUserData("obj") != null){
-                geoms.add((Geometry) s);
-                s.setShadowMode(RenderQueue.ShadowMode.CastAndReceive);
-                s.setUserData("mat", ((Geometry)s).getMaterial().getAssetName());
-            }
-        }
+        //generate sphere
+        Sphere sphereMesh = new Sphere(32,32, 1f);
+        sphere = new Geometry("Shiny rock", sphereMesh);
+        sphere.setName("sphere");
+        sphere.move(1, 3.5f, 0);
+        sphere.setShadowMode(RenderQueue.ShadowMode.CastAndReceive);
+        Material shinyMat = new Material( assetManager, "Common/MatDefs/Light/Lighting.j3md");
+        shinyMat.setBoolean("UseMaterialColors", true);
+        shinyMat.setColor("Specular", ColorRGBA.White);
+        shinyMat.setColor("Diffuse",  ColorRGBA.Red);
+        shinyMat.setColor("Ambient",  ColorRGBA.Red);
+        shinyMat.setFloat("Shininess", sphereShininess);
+        sphere.setMaterial(shinyMat);
+        rootNode.attachChild(sphere);
         
         //ambient light
         ambient = new AmbientLight();
@@ -139,13 +139,13 @@ public class Main extends SimpleApplication {
         
         //shadow renderer
         shadowQualities = new LoopList<EdgeFilteringMode>();
+        shadowQualities.add(EdgeFilteringMode.Dither);
         shadowQualities.add(EdgeFilteringMode.PCF4);
         shadowQualities.add(EdgeFilteringMode.PCF8);
         shadowQualities.add(EdgeFilteringMode.Nearest);
-        shadowQualities.add(EdgeFilteringMode.Dither);
         dlsr = new DirectionalLightShadowRenderer(assetManager, 2048, 4);
         dlsr.setLight(sun);
-        dlsr.setEdgeFilteringMode(EdgeFilteringMode.PCF4);
+        dlsr.setEdgeFilteringMode(EdgeFilteringMode.Nearest);
         viewPort.addProcessor(dlsr); 
         
         //camera node
@@ -154,20 +154,12 @@ public class Main extends SimpleApplication {
         camNode = new CameraNode("Camera Node", cam);
         camNode.setControlDir(ControlDirection.SpatialToCamera);
         camera.attachChild(camNode);
-        camNode.setLocalTranslation(new Vector3f(0, 5, -8));
+        camNode.setLocalTranslation(new Vector3f(0, 6, -9));
         camNode.lookAt(new Vector3f(0,1,0), Vector3f.UNIT_Y);
         rootNode.attachChild(camera);
         
-        //TEST: manipulate materials
-        //getGeometry("table").getMaterial().setTexture("DiffuseMap", null);
-        //getGeometry("table").getMaterial().setTexture("SpecularMap", null);
-        //getGeometry("table").getMaterial().setTexture("NormalMap", null);
-        
         //load HUD
         setHUD(true);
-        
-        //init selection set
-        selected = new HashSet<Geometry>();
         
         //load inputs
         initInputs();
@@ -179,11 +171,6 @@ public class Main extends SimpleApplication {
         if (autoCamEnabled && !manualCamMovement)
             camera.rotate(0, FastMath.DEG_TO_RAD*20*tpf, 0);
         manualCamMovement = false;
-        
-        //highlight timing
-        if (highlight && (highlightTime+=tpf) > 0.5f){
-            unhighlightGeom();
-        }
         
         //onscreen msg timing
         if (isOnScreenMsg && (onScreenMsgTime+=tpf) > 2){
@@ -197,47 +184,8 @@ public class Main extends SimpleApplication {
         //TODO: add render code
     }
     
-    private Geometry getGeometry(String name){
-        for (Spatial s : geoms)
-            if (s.getName().equals(name))
-                return (Geometry) s;
-        return null;
-    }
-    
-    private void highlightGeom(Geometry geom){
-        selected.add(geom);
-        geom.setMaterial(assetManager.loadMaterial("Materials/highlightMat.j3m"));
-        highlight = true;
-    }
-    
-    private void unhighlightGeom(){
-        highlightTime = 0;
-        highlight = false;
-        if (selected == null) return;
-        for(Geometry g : selected)
-            g.setMaterial(assetManager.loadMaterial((String)g.getUserData("mat")));
-    }
-    
-    private void selectNextObject(){
-        unhighlightGeom();
-        selected.clear();
-        highlightGeom((Geometry) geoms.next());
-        displayOnScreenMsg("Selected: Single Object");
-    }
-    
-    private void selectAllObjects(){
-        selected.clear();
-        unhighlightGeom();
-        for (Spatial s : geoms){
-            highlightGeom((Geometry) s);
-        }
-        displayOnScreenMsg("Selected: All Objects");
-    }
-    
     private void initInputs(){
         inputManager.addMapping("TOGGLE_HUD", new KeyTrigger(KeyInput.KEY_SPACE));
-        inputManager.addMapping("SELECT_OBJECT", new KeyTrigger(KeyInput.KEY_TAB));
-        inputManager.addMapping("SELECT_ALL", new KeyTrigger(KeyInput.KEY_Q));
         inputManager.addMapping("TOGGLE_FPS", new KeyTrigger(KeyInput.KEY_F1));
         inputManager.addMapping("TOGGLE_STATS", new KeyTrigger(KeyInput.KEY_F2));
         inputManager.addMapping("TOGGLE_AUTOCAM", new KeyTrigger(KeyInput.KEY_C));
@@ -259,20 +207,20 @@ public class Main extends SimpleApplication {
                                                  "TOGGLE_PARALLELP",
                                                  "SHADOW_MODE");
         
-        inputManager.addMapping("CAM_LEFT", new KeyTrigger(KeyInput.KEY_LEFT));
-        inputManager.addMapping("CAM_RIGHT", new KeyTrigger(KeyInput.KEY_RIGHT));
+        inputManager.addMapping("CAM_LEFT", new KeyTrigger(KeyInput.KEY_RIGHT));
+        inputManager.addMapping("CAM_RIGHT", new KeyTrigger(KeyInput.KEY_LEFT));
+        inputManager.addMapping("SHINY_PLUS", new KeyTrigger(KeyInput.KEY_UP));
+        inputManager.addMapping("SHINY_MINUS", new KeyTrigger(KeyInput.KEY_DOWN));
         
         inputManager.addListener(analogListener, "CAM_LEFT",
-                                                 "CAM_RIGHT"); 
+                                                 "CAM_RIGHT",
+                                                 "SHINY_PLUS",
+                                                 "SHINY_MINUS"); 
     }
     
     private ActionListener actionListener = new ActionListener(){
         public void onAction(String name, boolean pressed, float tpf){
-            if (name.equals("SELECT_OBJECT") && pressed){
-                selectNextObject();
-            } else if (name.equals("SELECT_ALL") && pressed){
-                selectAllObjects();
-            } else if (name.equals("TOGGLE_HUD") && pressed){
+            if (name.equals("TOGGLE_HUD") && pressed){
                 setHUD(hudEnabled = !hudEnabled);
                 displayOnScreenMsg("Controls display " + (hudEnabled ? "enabled" : "disabled"));
             } else if (name.equals("TOGGLE_FPS") && pressed){
@@ -340,6 +288,14 @@ public class Main extends SimpleApplication {
             } else if (name.equals("CAM_RIGHT")){
                 manualCamMovement = true;
                 camera.rotate(0, FastMath.DEG_TO_RAD*-50*tpf, 0);
+            } else if (name.equals("SHINY_PLUS")){
+                if (sphereShininess < 128 - 20*tpf) sphereShininess += 20*tpf;
+                sphere.getMaterial().setFloat("Shininess", sphereShininess);
+                displayOnScreenMsg("Sphere Shininess: " + (int)sphereShininess);
+            } else if (name.equals("SHINY_MINUS")){
+                if (sphereShininess > 0 + 20*tpf) sphereShininess -= 20*tpf;
+                sphere.getMaterial().setFloat("Shininess", sphereShininess);
+                displayOnScreenMsg("Sphere Shininess: " + (int)sphereShininess);
             }
         }
     };
