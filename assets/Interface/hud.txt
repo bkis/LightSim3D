@@ -4,7 +4,7 @@
 [DOWN]  decrease apple shininess
 
 [A]     toggle ambient light
-[L]     toggle directional light
+[D]     toggle directional light
 [S]     toggle shadows
 [M]     cycle shadow mode
 

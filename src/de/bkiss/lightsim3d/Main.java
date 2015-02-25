@@ -32,7 +32,7 @@ import com.jme3.texture.Texture;
 public class Main extends SimpleApplication {
     
     private Geometry apple;
-    private float sphereShininess = 30;
+    private float sphereShininess = 4;
     
     private boolean autoCamEnabled = true;
     private boolean manualCamMovement = false;
@@ -52,6 +52,7 @@ public class Main extends SimpleApplication {
     private AmbientLight ambient;
     private ColorRGBA ambColor = ColorRGBA.White.mult(3f);
     private DirectionalLight sun;
+    private boolean sunMovement = false;
     private ColorRGBA sunColor = new ColorRGBA(1f,1f,0.85f,1f).mult(1.1f);
     
     private float camFrustumFar;
@@ -110,7 +111,7 @@ public class Main extends SimpleApplication {
         scene.scale(0.05f);
         rootNode.attachChild(scene);
         
-        //generate sphere
+        //load apple
         apple = (Geometry) assetManager.loadModel("Models/Apple/apple.j3o");
         apple.setName("apple");
         apple.scale(0.03f);
@@ -120,7 +121,7 @@ public class Main extends SimpleApplication {
         shinyMat.setBoolean("UseMaterialColors", true);
         shinyMat.setColor("Specular", ColorRGBA.White);
         shinyMat.setColor("Diffuse",  ColorRGBA.Red);
-        shinyMat.setColor("Ambient",  ColorRGBA.Red);
+        //shinyMat.setColor("Ambient",  ColorRGBA.Red);
         shinyMat.setFloat("Shininess", sphereShininess);
         apple.setMaterial(shinyMat);
         rootNode.attachChild(apple);
@@ -176,6 +177,14 @@ public class Main extends SimpleApplication {
             guiNode.detachChildNamed("msg");
             isOnScreenMsg = false;
         }
+        
+        if (sunMovement){
+            float time = getTimer().getTimeInSeconds()/10;
+            sun.setDirection(new Vector3f(FastMath.sin(time),
+                                      -0.4f,
+                                      FastMath.cos(time))
+                                      .normalizeLocal());
+        }
     }
 
     @Override
@@ -189,8 +198,9 @@ public class Main extends SimpleApplication {
         inputManager.addMapping("TOGGLE_STATS", new KeyTrigger(KeyInput.KEY_F2));
         inputManager.addMapping("TOGGLE_AUTOCAM", new KeyTrigger(KeyInput.KEY_C));
         inputManager.addMapping("TOGGLE_SHADOWS", new KeyTrigger(KeyInput.KEY_S));
+        inputManager.addMapping("TOGGLE_SUNMOV", new KeyTrigger(KeyInput.KEY_L));
         inputManager.addMapping("SHADOW_MODE", new KeyTrigger(KeyInput.KEY_M));
-        inputManager.addMapping("TOGGLE_DIRLIGHT", new KeyTrigger(KeyInput.KEY_L));
+        inputManager.addMapping("TOGGLE_DIRLIGHT", new KeyTrigger(KeyInput.KEY_D));
         inputManager.addMapping("TOGGLE_AMBLIGHT", new KeyTrigger(KeyInput.KEY_A));
         inputManager.addMapping("TOGGLE_PARALLELP", new KeyTrigger(KeyInput.KEY_P));
         
@@ -204,7 +214,8 @@ public class Main extends SimpleApplication {
                                                  "TOGGLE_DIRLIGHT",
                                                  "TOGGLE_AMBLIGHT",
                                                  "TOGGLE_PARALLELP",
-                                                 "SHADOW_MODE");
+                                                 "SHADOW_MODE",
+                                                 "TOGGLE_SUNMOV");
         
         inputManager.addMapping("CAM_LEFT", new KeyTrigger(KeyInput.KEY_RIGHT));
         inputManager.addMapping("CAM_RIGHT", new KeyTrigger(KeyInput.KEY_LEFT));
@@ -275,6 +286,9 @@ public class Main extends SimpleApplication {
                     cam.setFrustum(camFrustumNear, camFrustumFar, camFrustumLeft, camFrustumRight, camFrustumTop, camFrustumBottom);
                     displayOnScreenMsg("Parallel projection disabled");
                 }
+            } else if (name.equals("TOGGLE_SUNMOV") && pressed){
+                sunMovement = !sunMovement;
+                displayOnScreenMsg("Directional light auto movement " + (sunMovement ? "enabled" : "disabled"));
             }
         }
     };
