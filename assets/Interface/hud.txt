@@ -5,6 +5,7 @@
 
 [A]     toggle ambient light
 [D]     toggle directional light
+[L]     toggle directional light movement
 [S]     toggle shadows
 [M]     cycle shadow mode
 

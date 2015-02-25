@@ -69,12 +69,11 @@ public class Main extends SimpleApplication {
         //configure settings
         AppSettings settings = new AppSettings(true);
         settings.setResolution(1024, 768);
-        settings.setMinResolution(1024, 768);
-        settings.setBitsPerPixel(24);
-        settings.setVSync(false);
+        settings.setMinResolution(800, 600);
+        settings.setVSync(true);
         settings.setFullscreen(false);
-        settings.setTitle("LightSim3D - simulation for light"
-                + "and material in 3D graphics");
+        settings.setSettingsDialogImage("Interface/splash.png");
+        settings.setTitle("LightSim3D");
         
         app.showSettings = true;
         app.setDisplayFps(isDisplayFps);
@@ -121,7 +120,7 @@ public class Main extends SimpleApplication {
         shinyMat.setBoolean("UseMaterialColors", true);
         shinyMat.setColor("Specular", ColorRGBA.White);
         shinyMat.setColor("Diffuse",  ColorRGBA.Red);
-        //shinyMat.setColor("Ambient",  ColorRGBA.Red);
+        shinyMat.setColor("Ambient",  ColorRGBA.Red.mult(0.5f));
         shinyMat.setFloat("Shininess", sphereShininess);
         apple.setMaterial(shinyMat);
         rootNode.attachChild(apple);
@@ -279,7 +278,7 @@ public class Main extends SimpleApplication {
                     camFrustumBottom = cam.getFrustumBottom();
                     camFrustumTop = cam.getFrustumTop();
                     cam.setParallelProjection(true);
-                    cam.setFrustum(-100, 1000, -5, 5, 3.5f, -3.5f);
+                    cam.setFrustum(-100, 1000, -5, 5, 4f, -3f);
                     displayOnScreenMsg("Parallel projection enabled");
                 } else {
                     cam.setParallelProjection(false);
