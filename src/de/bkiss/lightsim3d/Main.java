@@ -50,6 +50,8 @@ public class Main extends SimpleApplication {
     private ColorRGBA sunColor = new ColorRGBA(1f,1f,0.85f,1f).mult(1.1f);
     private boolean sunMovement = false;
     
+    private GUIController gui;
+    
   
     public static void main(String[] args) {
         Main app = new Main();
@@ -114,7 +116,7 @@ public class Main extends SimpleApplication {
         
         //directional light
         sun = new DirectionalLight();
-        sun.setDirection((new Vector3f(-0.5f, -0.4f, -0.5f)).normalizeLocal());
+        sun.setDirection((new Vector3f(0.5f, -0.4f, 0.5f)).normalizeLocal());
         sun.setColor(sunColor);
         rootNode.addLight(sun); 
         
@@ -135,6 +137,10 @@ public class Main extends SimpleApplication {
         
         //load inputs
         initInputs();
+        
+        //load GUI
+        gui = new GUIController(this);
+        gui.loadScreen("start");
     }
 
     @Override
