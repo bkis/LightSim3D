@@ -20,6 +20,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.control.CameraControl.ControlDirection;
 import com.jme3.scene.shape.Quad;
+import com.jme3.scene.shape.Sphere;
 import com.jme3.shadow.DirectionalLightShadowRenderer;
 import com.jme3.shadow.EdgeFilteringMode;
 import com.jme3.system.AppSettings;
@@ -64,7 +65,7 @@ public class Main extends SimpleApplication {
         settings.setFullscreen(false);
         settings.setTitle("LightSim3D");
         
-        app.showSettings = true;
+        app.showSettings = false;
         app.setDisplayFps(isDisplayFps);
         app.setDisplayStatView(isDisplayStats);
         app.setSettings(settings);
@@ -94,11 +95,13 @@ public class Main extends SimpleApplication {
         ground.setLocalTranslation(-100, 0, 100);
         rootNode.attachChild(ground);
         
-        //load apple
-        apple = (Geometry) assetManager.loadModel("Models/Apple/apple.j3o");
+        //load object
+        Sphere sphereMesh = new Sphere(32,32,20f);
+        Geometry apple = new Geometry("Shiny rock", sphereMesh);
+        //apple = (Geometry) assetManager.loadModel("Models/Apple/apple.j3o");
         apple.setName("apple");
         apple.scale(0.03f);
-        apple.move(-1.8f, 0f, 0f);
+        apple.move(0, 0.5f, 0f);
         apple.setShadowMode(RenderQueue.ShadowMode.CastAndReceive);
         Material shinyMat = new Material( assetManager, "Common/MatDefs/Light/Lighting.j3md");
         shinyMat.setBoolean("UseMaterialColors", true);

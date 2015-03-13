@@ -3,27 +3,31 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://nifty-gui.sourceforge.net/nifty.xsd http://nifty-gui.sourceforge.net/nifty.xsd">
     
-    <useControls filename="nifty-default-controls.xml" />
+    <useStyles filename="nifty-default-styles.xml"/>
+    <useControls filename="nifty-default-controls.xml"/>
     
     <screen id="start" controller="de.bkiss.lightsim3d.GUIController">
         
         <layer id="layer" backgroundColor="#0000" childLayout="vertical">
-            <panel width="100%"
-                   backgroundColor="#0000"
-                   childLayout="center" 
-                   visibleToMouse="false"></panel>
-            <panel height="200" width="100%"
-                   backgroundColor="#eeef"
-                   childLayout="center"
-                   visibleToMouse="true">
+            <panel height="100%" width="200px" backgroundColor="#222f" childLayout="vertical" visibleToMouse="true">
                 
                 <!-- CONTROLS -->
-                
-                <control name="label" font="Interface/Fonts/Default.fnt" text="HAHAHA" align="center" height="20"/>
-                <control id="sliderV" name="verticalSlider" height="100px" />
-                <control id="game_stat_time" name="label" font="Interface/Fonts/Default.fnt" text="STAT" align="left" height="18"/>
-		<control id="game_stat_district_tot_luxury" name="label" font="Interface/Fonts/Default.fnt" text="STAT" align="left" height="18"/>
-		<control id="game_stat_gentrified" name="label" font="Interface/Fonts/Default.fnt" text="STAT" align="left" height="18"/>
+                <text text="Kategorie:" font="Interface/Fonts/Default.fnt" height="22" wrap="false" align="left"/>
+
+                <panel width="100%" backgroundColor="#fff1" childLayout="horizontal">
+                    <text text="R" font="Interface/Fonts/Default.fnt" height="22" wrap="false"/>
+                    <control id="slider1" name="horizontalSlider" width="100px" align="right"/>
+                </panel>
+
+                <panel width="100%" backgroundColor="#fff1" childLayout="horizontal">
+                    <text text="G" font="Interface/Fonts/Default.fnt" height="22" wrap="false" align="left"/>
+                    <control id="slider2" name="horizontalSlider" width="100px" align="right"/>
+                </panel>
+
+                <panel width="100%" backgroundColor="#fff1" childLayout="horizontal">
+                    <text text="B" font="Interface/Fonts/Default.fnt" height="22" wrap="false" align="left"/>
+                    <control id="slider3" name="horizontalSlider" width="100px" align="right"/>
+                </panel>
                 
             </panel>
         </layer>

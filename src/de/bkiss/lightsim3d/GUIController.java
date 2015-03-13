@@ -34,6 +34,7 @@ public class GUIController implements ScreenController{
             app.getViewPort());
         
         nifty = niftyDisplay.getNifty();
+        nifty.setIgnoreKeyboardEvents(true);
         app.getGuiViewPort().addProcessor(niftyDisplay);
         
         //set logging level
