@@ -7,22 +7,21 @@ import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.AmbientLight;
-import com.jme3.light.DirectionalLight;
+import com.jme3.light.SpotLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
-import com.jme3.math.Vector2f;
+import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.CameraNode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
-import com.jme3.scene.control.CameraControl.ControlDirection;
 import com.jme3.scene.shape.Quad;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.shadow.DirectionalLightShadowRenderer;
-import com.jme3.shadow.EdgeFilteringMode;
+import com.jme3.shadow.SpotLightShadowRenderer;
 import com.jme3.system.AppSettings;
 
 /**
@@ -31,23 +30,18 @@ import com.jme3.system.AppSettings;
  */
 public class Main extends SimpleApplication {
     
-    private Geometry apple;
-    
     private boolean isOnScreenMsg = false;
     private float onScreenMsgTime;
-    
-    private CameraNode camNode;
-    private Node camera;
     
     private static boolean isDisplayFps = false;
     private static boolean isDisplayStats = false;
     
+    SpotLight spot;
     private DirectionalLightShadowRenderer dlsr;
     
     private AmbientLight ambient;
     private ColorRGBA ambColor = ColorRGBA.White.mult(3f);
     
-    private DirectionalLight sun;
     private ColorRGBA sunColor = new ColorRGBA(1f,1f,0.85f,1f).mult(1.1f);
     private boolean sunMovement = false;
     
@@ -79,65 +73,61 @@ public class Main extends SimpleApplication {
         flyCam.setMoveSpeed(10f);
         flyCam.setEnabled(false);
         
+        //camera
+        cam.setLocation(new Vector3f(1.1161567f, 1.8043375f, -2.223234f));
+        cam.setRotation(new Quaternion(0.24233484f, -0.16623776f, 0.042186935f, 0.95491314f));
+        
         //register loaders
         assetManager.registerLoader(TextLoader.class, "txt");
         
         //load ground plane
         Quad quad = new Quad(200, 200);
-        quad.scaleTextureCoordinates(new Vector2f(20, 20));
         Geometry ground = new Geometry("ground", quad);
         ground.setShadowMode(RenderQueue.ShadowMode.Receive);
         Material groundMat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
         groundMat.setBoolean("UseMaterialColors", true);
         groundMat.setColor("Diffuse", ColorRGBA.White);
+        groundMat.setColor("Ambient", ColorRGBA.White);
+        groundMat.setColor("Specular", ColorRGBA.White);
         ground.setMaterial(groundMat);
         ground.rotate(FastMath.DEG_TO_RAD*-90, 0, 0);
-        ground.setLocalTranslation(-100, 0, 100);
+        ground.setLocalTranslation(-5.5f, 0, 8);
         rootNode.attachChild(ground);
         
         //load object
         Sphere sphereMesh = new Sphere(32,32,20f);
-        Geometry apple = new Geometry("Shiny rock", sphereMesh);
-        //apple = (Geometry) assetManager.loadModel("Models/Apple/apple.j3o");
-        apple.setName("apple");
-        apple.scale(0.03f);
-        apple.move(0, 0.5f, 0f);
-        apple.setShadowMode(RenderQueue.ShadowMode.CastAndReceive);
+        Geometry sphere = new Geometry("sphere", sphereMesh);
+        sphere.scale(0.03f);
+        sphere.move(0, 0.5f, 0f);
+        sphere.setShadowMode(RenderQueue.ShadowMode.Cast);
         Material shinyMat = new Material( assetManager, "Common/MatDefs/Light/Lighting.j3md");
         shinyMat.setBoolean("UseMaterialColors", true);
         shinyMat.setColor("Specular", ColorRGBA.White);
         shinyMat.setColor("Diffuse",  ColorRGBA.Red);
         shinyMat.setColor("Ambient",  ColorRGBA.Red.mult(0.5f));
         shinyMat.setFloat("Shininess", 4f);
-        apple.setMaterial(shinyMat);
-        rootNode.attachChild(apple);
+        sphere.setMaterial(shinyMat);
+        rootNode.attachChild(sphere);
         
         //ambient light
         ambient = new AmbientLight();
-        ambient.setColor(ColorRGBA.BlackNoAlpha);
+        ambient.setColor(ColorRGBA.White);
         rootNode.addLight(ambient); 
         
         //directional light
-        sun = new DirectionalLight();
-        sun.setDirection((new Vector3f(0.5f, -0.4f, 0.5f)).normalizeLocal());
-        sun.setColor(sunColor);
-        rootNode.addLight(sun); 
+        spot = new SpotLight(); 
+        spot.setSpotRange(50); 
+        spot.setSpotOuterAngle(45 * FastMath.DEG_TO_RAD); 
+        spot.setSpotInnerAngle(5 * FastMath.DEG_TO_RAD); 
+        spot.setDirection(cam.getDirection()); 
+        spot.setPosition(cam.getLocation().add(1, 0, 0)); 
+        rootNode.addLight(spot); 
         
         //shadow renderer
-        dlsr = new DirectionalLightShadowRenderer(assetManager, 2048, 4);
-        dlsr.setLight(sun);
-        dlsr.setEdgeFilteringMode(EdgeFilteringMode.Nearest);
-        viewPort.addProcessor(dlsr); 
-        
-        //camera node
-        camera = new Node();
-        camNode = new CameraNode("Camera Node", cam);
-        camNode.setControlDir(ControlDirection.SpatialToCamera);
-        camera.attachChild(camNode);
-        camNode.setLocalTranslation(new Vector3f(0, 5, -8));
-        camNode.lookAt(new Vector3f(0,0,-1.5f), Vector3f.UNIT_Y);
-        rootNode.attachChild(camera);
-        
+        SpotLightShadowRenderer slsr = new SpotLightShadowRenderer(assetManager, 1024);
+        slsr.setLight(spot);
+        viewPort.addProcessor(slsr); 
+  
         //load inputs
         initInputs();
         
@@ -154,14 +144,7 @@ public class Main extends SimpleApplication {
             guiNode.detachChildNamed("msg");
             isOnScreenMsg = false;
         }
-        
-        if (sunMovement){
-            float time = getTimer().getTimeInSeconds()/10;
-            sun.setDirection(new Vector3f(FastMath.sin(time),
-                                      -0.4f,
-                                      FastMath.cos(time))
-                                      .normalizeLocal());
-        }
+
     }
 
     @Override
@@ -173,7 +156,6 @@ public class Main extends SimpleApplication {
         inputManager.addMapping("TOGGLE_FPS", new KeyTrigger(KeyInput.KEY_F1));
         inputManager.addMapping("TOGGLE_STATS", new KeyTrigger(KeyInput.KEY_F2));
         inputManager.addMapping("TOGGLE_SHADOWS", new KeyTrigger(KeyInput.KEY_S));
-        inputManager.addMapping("TOGGLE_SUNMOV", new KeyTrigger(KeyInput.KEY_L));
         inputManager.addMapping("TOGGLE_DIRLIGHT", new KeyTrigger(KeyInput.KEY_D));
         inputManager.addMapping("TOGGLE_AMBLIGHT", new KeyTrigger(KeyInput.KEY_A));
         
@@ -185,16 +167,6 @@ public class Main extends SimpleApplication {
                                                  "TOGGLE_DIRLIGHT",
                                                  "TOGGLE_AMBLIGHT",
                                                  "TOGGLE_SUNMOV");
-        
-        inputManager.addMapping("CAM_LEFT", new KeyTrigger(KeyInput.KEY_RIGHT));
-        inputManager.addMapping("CAM_RIGHT", new KeyTrigger(KeyInput.KEY_LEFT));
-        inputManager.addMapping("SHINY_PLUS", new KeyTrigger(KeyInput.KEY_UP));
-        inputManager.addMapping("SHINY_MINUS", new KeyTrigger(KeyInput.KEY_DOWN));
-        
-        inputManager.addListener(analogListener, "CAM_LEFT",
-                                                 "CAM_RIGHT",
-                                                 "SHINY_PLUS",
-                                                 "SHINY_MINUS"); 
     }
     
     private ActionListener actionListener = new ActionListener(){
@@ -213,12 +185,12 @@ public class Main extends SimpleApplication {
                 }
                 displayOnScreenMsg("Shadow Processor " + (viewPort.getProcessors().contains(dlsr) ? "enabled" : "disabled"));
             } else if (name.equals("TOGGLE_DIRLIGHT") && pressed){
-                if (!sun.getColor().equals(ColorRGBA.BlackNoAlpha)){
-                    sun.setColor(ColorRGBA.BlackNoAlpha);
+                if (!spot.getColor().equals(ColorRGBA.BlackNoAlpha)){
+                    spot.setColor(ColorRGBA.BlackNoAlpha);
                     if (viewPort.getProcessors().contains(dlsr)) viewPort.removeProcessor(dlsr);
                     displayOnScreenMsg("Directional light and shadow processor disabled");
                 } else {
-                    sun.setColor(sunColor);
+                    spot.setColor(sunColor);
                     if (!viewPort.getProcessors().contains(dlsr)) viewPort.addProcessor(dlsr);
                     displayOnScreenMsg("Directional light and shadow processor enabled");
                 }
@@ -237,16 +209,6 @@ public class Main extends SimpleApplication {
         }
     };
     
-    private AnalogListener analogListener = new AnalogListener() {
-        public void onAnalog(String name, float value, float tpf) {
-            if (name.equals("CAM_LEFT")){
-                camera.rotate(0, FastMath.DEG_TO_RAD*50*tpf, 0);
-            } else if (name.equals("CAM_RIGHT")){
-                camera.rotate(0, FastMath.DEG_TO_RAD*-50*tpf, 0);
-            }
-        }
-    };
-
     private void displayOnScreenMsg(String msg){
         onScreenMsgTime = 0;
         guiNode.detachChildNamed("msg");
@@ -258,6 +220,10 @@ public class Main extends SimpleApplication {
         text.setName("msg");
         guiNode.attachChild(text);
         isOnScreenMsg = true;
+    }
+    
+    public void sliderEvent(String id, float value){
+        
     }
     
 }

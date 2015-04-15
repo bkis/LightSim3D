@@ -8,6 +8,8 @@ import com.jme3.app.Application;
 import com.jme3.app.SimpleApplication;
 import com.jme3.niftygui.NiftyJmeDisplay;
 import de.lessvoid.nifty.Nifty;
+import de.lessvoid.nifty.NiftyEventSubscriber;
+import de.lessvoid.nifty.controls.SliderChangedEvent;
 import de.lessvoid.nifty.screen.Screen;
 import de.lessvoid.nifty.screen.ScreenController;
 
@@ -21,7 +23,6 @@ public class GUIController implements ScreenController{
     private Screen screen;   
     private final NiftyJmeDisplay niftyDisplay;
     private final SimpleApplication app;
-    
     
     
     public GUIController(Application app){
@@ -61,5 +62,10 @@ public class GUIController implements ScreenController{
     public void test(){
         System.out.println("HAHAHA");
     }
+    
+    @NiftyEventSubscriber(pattern="sl.*")
+    public void onAllSliderChanged(final String id, final SliderChangedEvent event) {
+        //app.sliderEvent(event.getSlider().getId(), event.getSlider().getValue());
+    } 
     
 }
