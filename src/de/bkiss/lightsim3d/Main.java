@@ -60,7 +60,7 @@ public class Main extends SimpleApplication {
         //configure settings
         AppSettings settings = new AppSettings(true);
         settings.setResolution(1024, 768);
-        settings.setMinResolution(800, 600);
+        settings.setMinResolution(1024, 768);
         settings.setVSync(true);
         settings.setFullscreen(false);
         settings.setTitle("LightSim3D");
