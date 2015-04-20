@@ -4,7 +4,6 @@ import com.jme3.app.SimpleApplication;
 import com.jme3.font.BitmapText;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
-import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.SpotLight;
@@ -15,14 +14,14 @@ import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.queue.RenderQueue;
-import com.jme3.scene.CameraNode;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Node;
 import com.jme3.scene.shape.Quad;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.shadow.DirectionalLightShadowRenderer;
 import com.jme3.shadow.SpotLightShadowRenderer;
 import com.jme3.system.AppSettings;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Main class for LightSim3D
@@ -35,6 +34,10 @@ public class Main extends SimpleApplication {
     
     private static boolean isDisplayFps = false;
     private static boolean isDisplayStats = false;
+    
+    private Geometry sphere;
+    
+    private Map<String, Float> v;
     
     SpotLight spot;
     private DirectionalLightShadowRenderer dlsr;
@@ -68,6 +71,7 @@ public class Main extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
+        initValues();
         
         //setup
         flyCam.setMoveSpeed(10f);
@@ -96,7 +100,7 @@ public class Main extends SimpleApplication {
         
         //load object
         Sphere sphereMesh = new Sphere(32,32,20f);
-        Geometry sphere = new Geometry("sphere", sphereMesh);
+        sphere = new Geometry("sphere", sphereMesh);
         sphere.scale(0.03f);
         sphere.move(0, 0.5f, 0f);
         sphere.setShadowMode(RenderQueue.ShadowMode.Cast);
@@ -223,7 +227,19 @@ public class Main extends SimpleApplication {
     }
     
     public void sliderEvent(String id, float value){
-        
+        if (id.equals("slMatDiffR")){
+            sphere.getMaterial().setColor("Diffuse", new ColorRGBA(value, v.get("matDiffG"), v.get("matDiffB"), v.get("matDiffA")));
+            //TODO
+        }
+    }
+    
+    private void initValues(){
+        v = new HashMap<String, Float>();
+        v.put("matDiffR", 0.5f);
+        v.put("matDiffG", 0.5f);
+        v.put("matDiffB", 0.5f);
+        v.put("matDiffA", 0.5f);
+        //TODO
     }
     
 }

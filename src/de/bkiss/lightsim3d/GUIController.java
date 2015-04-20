@@ -22,11 +22,11 @@ public class GUIController implements ScreenController{
     private Nifty nifty;
     private Screen screen;   
     private final NiftyJmeDisplay niftyDisplay;
-    private final SimpleApplication app;
+    private final Main app;
     
     
     public GUIController(Application app){
-        this.app = (SimpleApplication) app;
+        this.app = (Main) app;
         
         niftyDisplay = new NiftyJmeDisplay(
             app.getAssetManager(),
@@ -65,7 +65,7 @@ public class GUIController implements ScreenController{
     
     @NiftyEventSubscriber(pattern="sl.*")
     public void onAllSliderChanged(final String id, final SliderChangedEvent event) {
-        //app.sliderEvent(event.getSlider().getId(), event.getSlider().getValue());
+        app.sliderEvent(event.getSlider().getId(), event.getSlider().getValue());
     } 
     
 }
