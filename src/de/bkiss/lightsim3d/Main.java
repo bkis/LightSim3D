@@ -15,13 +15,15 @@ import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.LightNode;
+import com.jme3.scene.control.LightControl;
 import com.jme3.scene.shape.Quad;
 import com.jme3.scene.shape.Sphere;
-import com.jme3.shadow.DirectionalLightShadowRenderer;
 import com.jme3.shadow.SpotLightShadowRenderer;
 import com.jme3.system.AppSettings;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Main class for LightSim3D
@@ -39,14 +41,13 @@ public class Main extends SimpleApplication {
     
     private Map<String, Float> v;
     
-    SpotLight spot;
-    private DirectionalLightShadowRenderer dlsr;
-    
+    private SpotLight spot;
+    private SpotLightShadowRenderer slsr;
+    private LightNode spotNode;
     private AmbientLight ambient;
-    private ColorRGBA ambColor = ColorRGBA.White.mult(3f);
-    
-    private ColorRGBA sunColor = new ColorRGBA(1f,1f,0.85f,1f).mult(1.1f);
-    private boolean sunMovement = false;
+    private LightNode ambientNode;
+    private boolean ambLightOn = true;
+    private boolean spotLightOn = true;
     
     private GUIController gui;
     
@@ -71,8 +72,6 @@ public class Main extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
-        initValues();
-        
         //setup
         flyCam.setMoveSpeed(10f);
         flyCam.setEnabled(false);
@@ -115,8 +114,9 @@ public class Main extends SimpleApplication {
         
         //ambient light
         ambient = new AmbientLight();
-        ambient.setColor(ColorRGBA.White);
-        rootNode.addLight(ambient); 
+        ambientNode = new LightNode("ambientNode", ambient);
+        rootNode.addLight(ambient);
+        rootNode.attachChild(ambientNode);
         
         //directional light
         spot = new SpotLight(); 
@@ -125,10 +125,12 @@ public class Main extends SimpleApplication {
         spot.setSpotInnerAngle(5 * FastMath.DEG_TO_RAD); 
         spot.setDirection(cam.getDirection()); 
         spot.setPosition(cam.getLocation().add(1, 0, 0)); 
-        rootNode.addLight(spot); 
+        spotNode = new LightNode("spotNode", spot);
+        rootNode.addLight(spot);
+        rootNode.attachChild(spotNode);
         
         //shadow renderer
-        SpotLightShadowRenderer slsr = new SpotLightShadowRenderer(assetManager, 1024);
+        slsr = new SpotLightShadowRenderer(assetManager, 1024);
         slsr.setLight(spot);
         viewPort.addProcessor(slsr); 
   
@@ -138,6 +140,9 @@ public class Main extends SimpleApplication {
         //load GUI
         gui = new GUIController(this);
         gui.loadScreen("start");
+
+        //init values
+        initValues();
     }
 
     @Override
@@ -169,8 +174,7 @@ public class Main extends SimpleApplication {
                                                  "TOGGLE_STATS",
                                                  "TOGGLE_SHADOWS",
                                                  "TOGGLE_DIRLIGHT",
-                                                 "TOGGLE_AMBLIGHT",
-                                                 "TOGGLE_SUNMOV");
+                                                 "TOGGLE_AMBLIGHT");
     }
     
     private ActionListener actionListener = new ActionListener(){
@@ -182,33 +186,34 @@ public class Main extends SimpleApplication {
                 setDisplayStatView(isDisplayStats = !isDisplayStats);
                 displayOnScreenMsg("Stats display " + (isDisplayStats ? "enabled" : "disabled"));
             } else if (name.equals("TOGGLE_SHADOWS") && pressed){
-                if (viewPort.getProcessors().contains(dlsr)){
-                    viewPort.removeProcessor(dlsr);
+                if (viewPort.getProcessors().contains(slsr)){
+                    viewPort.removeProcessor(slsr);
                 } else {
-                    viewPort.addProcessor(dlsr);
+                    viewPort.addProcessor(slsr);
                 }
-                displayOnScreenMsg("Shadow Processor " + (viewPort.getProcessors().contains(dlsr) ? "enabled" : "disabled"));
+                displayOnScreenMsg("Shadow Processor " + (viewPort.getProcessors().contains(slsr) ? "enabled" : "disabled"));
             } else if (name.equals("TOGGLE_DIRLIGHT") && pressed){
-                if (!spot.getColor().equals(ColorRGBA.BlackNoAlpha)){
-                    spot.setColor(ColorRGBA.BlackNoAlpha);
-                    if (viewPort.getProcessors().contains(dlsr)) viewPort.removeProcessor(dlsr);
+                if (spotLightOn){
+                    spotNode.setEnabled(false);
+                    if (viewPort.getProcessors().contains(slsr)) viewPort.removeProcessor(slsr);
                     displayOnScreenMsg("Directional light and shadow processor disabled");
+                    spotLightOn = false;
                 } else {
-                    spot.setColor(sunColor);
-                    if (!viewPort.getProcessors().contains(dlsr)) viewPort.addProcessor(dlsr);
+                    spotNode.setEnabled(true);
+                    if (!viewPort.getProcessors().contains(slsr)) viewPort.addProcessor(slsr);
                     displayOnScreenMsg("Directional light and shadow processor enabled");
+                    spotLightOn = true;
                 }
             } else if (name.equals("TOGGLE_AMBLIGHT") && pressed){
-                if (!ambient.getColor().equals(ColorRGBA.BlackNoAlpha)){
-                    ambient.setColor(ColorRGBA.BlackNoAlpha);
+                if (ambLightOn){
+                    ambientNode.setEnabled(false);
                     displayOnScreenMsg("Ambient light disabled");
+                    ambLightOn = false;
                 } else {
-                    ambient.setColor(ambColor);
+                    ambientNode.setEnabled(true);
                     displayOnScreenMsg("Ambient light enabled");
+                    ambLightOn = true;
                 }
-            } else if (name.equals("TOGGLE_SUNMOV") && pressed){
-                sunMovement = !sunMovement;
-                displayOnScreenMsg("Directional light auto movement " + (sunMovement ? "enabled" : "disabled"));
             }
         }
     };
@@ -216,30 +221,92 @@ public class Main extends SimpleApplication {
     private void displayOnScreenMsg(String msg){
         onScreenMsgTime = 0;
         guiNode.detachChildNamed("msg");
-        guiFont = assetManager.loadFont("Interface/Fonts/Calibri.fnt");
+        guiFont = assetManager.loadFont("Interface/Fonts/CalibriBold.fnt");
         BitmapText text = new BitmapText(guiFont, false);
         text.setSize(guiFont.getCharSet().getRenderedSize());
         text.setText(msg);
-        text.setLocalTranslation((cam.getWidth()/2)-(text.getLineWidth()/2), 50, 0);
+        text.setLocalTranslation((cam.getWidth()/2)-(text.getLineWidth()/2), cam.getHeight(), 0);
         text.setName("msg");
         guiNode.attachChild(text);
         isOnScreenMsg = true;
     }
     
     public void sliderEvent(String id, float value){
-        if (id.equals("slMatDiffR")){
-            sphere.getMaterial().setColor("Diffuse", new ColorRGBA(value, v.get("matDiffG"), v.get("matDiffB"), v.get("matDiffA")));
+        displayOnScreenMsg(id + ": " + value);
+        v.put(id, value);
+        if (id.equals("slMatShin")) {
+            sphere.getMaterial().setFloat("Shininess", v.get(id)*127+1);
+        } else if (id.equals("slSpotExp")) {
             //TODO
+        } else if (id.equals("slSpotCut")) {
+            //TODO
+        } else {
+            if (id.contains("MatDiff")){
+                sphere.getMaterial().setColor("Diffuse", new ColorRGBA(
+                        v.get("slMatDiffR"),
+                        v.get("slMatDiffG"),
+                        v.get("slMatDiffB"),
+                        1));
+            } else if (id.contains("MatAmb")){
+                sphere.getMaterial().setColor("Ambient", new ColorRGBA(
+                        v.get("slMatAmbR"),
+                        v.get("slMatAmbG"),
+                        v.get("slMatAmbB"),
+                        1));
+            } else if (id.contains("MatSpec")){
+                sphere.getMaterial().setColor("Specular", new ColorRGBA(
+                        v.get("slMatSpecR"),
+                        v.get("slMatSpecG"),
+                        v.get("slMatSpecB"),
+                        1));
+            } else if (id.contains("AmbLi")){
+                ambient.setColor(new ColorRGBA(
+                        v.get("slAmbLiR"),
+                        v.get("slAmbLiG"),
+                        v.get("slAmbLiB"),
+                        1));
+            } else if (id.contains("SpotLi")){
+                ambient.setColor(new ColorRGBA(
+                        v.get("slSpotLiR"),
+                        v.get("slSpotLiG"),
+                        v.get("slSpotLiB"),
+                        1));
+            }
         }
     }
     
     private void initValues(){
         v = new HashMap<String, Float>();
-        v.put("matDiffR", 0.5f);
-        v.put("matDiffG", 0.5f);
-        v.put("matDiffB", 0.5f);
-        v.put("matDiffA", 0.5f);
-        //TODO
+        //Material Diffuse
+        v.put("slMatDiffR", gui.getSliderValue("slMatDiffR"));
+        v.put("slMatDiffG", gui.getSliderValue("slMatDiffG"));
+        v.put("slMatDiffB", gui.getSliderValue("slMatDiffB"));
+        //Material Ambient
+        v.put("slMatAmbR", gui.getSliderValue("slMatAmbR"));
+        v.put("slMatAmbG", gui.getSliderValue("slMatAmbG"));
+        v.put("slMatAmbB", gui.getSliderValue("slMatAmbB"));
+        //Material Specular
+        v.put("slMatSpecR", gui.getSliderValue("slMatSpecR"));
+        v.put("slMatSpecG", gui.getSliderValue("slMatSpecG"));
+        v.put("slMatSpecB", gui.getSliderValue("slMatSpecB"));
+        //Material Shininess
+        v.put("slMatShin", gui.getSliderValue("slMatShin"));
+        //Ambient Light
+        v.put("slAmbLiR", gui.getSliderValue("slAmbLiR"));
+        v.put("slAmbLiG", gui.getSliderValue("slAmbLiG"));
+        v.put("slAmbLiB", gui.getSliderValue("slAmbLiB"));
+        //SpotLight
+        v.put("slSpotLiR", gui.getSliderValue("slSpotLiR"));
+        v.put("slSpotLiG", gui.getSliderValue("slSpotLiG"));
+        v.put("slSpotLiB", gui.getSliderValue("slSpotLiB"));
+        //Spotlight Exponent + Cutoff
+        v.put("slSpotExp", gui.getSliderValue("slSpotExp"));
+        v.put("slSpotCut", gui.getSliderValue("slSpotCut"));
+        
+        //set initial values
+        for (Entry<String, Float> e : v.entrySet()){
+            sliderEvent(e.getKey(), e.getValue());
+        }
     }
     
 }

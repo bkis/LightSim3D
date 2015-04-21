@@ -5,10 +5,10 @@
 package de.bkiss.lightsim3d;
 
 import com.jme3.app.Application;
-import com.jme3.app.SimpleApplication;
 import com.jme3.niftygui.NiftyJmeDisplay;
 import de.lessvoid.nifty.Nifty;
 import de.lessvoid.nifty.NiftyEventSubscriber;
+import de.lessvoid.nifty.controls.Slider;
 import de.lessvoid.nifty.controls.SliderChangedEvent;
 import de.lessvoid.nifty.screen.Screen;
 import de.lessvoid.nifty.screen.ScreenController;
@@ -67,5 +67,9 @@ public class GUIController implements ScreenController{
     public void onAllSliderChanged(final String id, final SliderChangedEvent event) {
         app.sliderEvent(event.getSlider().getId(), event.getSlider().getValue());
     } 
+    
+    public float getSliderValue(String id){
+        return screen.findNiftyControl(id, Slider.class).getValue();
+    }
     
 }

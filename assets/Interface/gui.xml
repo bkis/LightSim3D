@@ -18,31 +18,28 @@
 
                     <!-- MATERIAL DIFFUSE -->
                     <text text="  Diffuse RGBA" font="Interface/Fonts/Calibri.fnt" width="90%" height="22" wrap="false" align="center"/>
-                    <panel backgroundColor="#600f" childLayout="center" width="100%"><control id="slMatDiffR" name="horizontalSlider" min="0.0" max="1.0" initial="0.5" stepSize="0.01" width="90%"/></panel>
-                    <panel backgroundColor="#060f" childLayout="center" width="100%"><control id="slMatDiffG" name="horizontalSlider" width="90%"/></panel>
-                    <panel backgroundColor="#006f" childLayout="center" width="100%"><control id="slMatDiffB" name="horizontalSlider" width="90%"/></panel>
-                    <panel backgroundColor="#333f" childLayout="center" width="100%"><control id="slMatDiffA" name="horizontalSlider" width="90%"/></panel>
+                    <panel backgroundColor="#600f" childLayout="center" width="100%"><control id="slMatDiffR" name="horizontalSlider" min="0.0" max="1.0" initial="0.75164" stepSize="0.05" width="90%"/></panel>
+                    <panel backgroundColor="#060f" childLayout="center" width="100%"><control id="slMatDiffG" name="horizontalSlider" min="0.0" max="1.0" initial="0.60648" stepSize="0.05" width="90%"/></panel>
+                    <panel backgroundColor="#006f" childLayout="center" width="100%"><control id="slMatDiffB" name="horizontalSlider" min="0.0" max="1.0" initial="0.22648" stepSize="0.05" width="90%"/></panel>
                     <!-- /MATERIAL DIFFUSE -->
                     
                     <!-- MATERIAL AMBIENT -->
                     <text text="  Ambient RGBA" font="Interface/Fonts/Calibri.fnt" width="90%" height="22" wrap="false" align="center"/>
-                    <panel backgroundColor="#600f" childLayout="center" width="100%"><control id="slMatAmbR" name="horizontalSlider" width="90%"/></panel>
-                    <panel backgroundColor="#060f" childLayout="center" width="100%"><control id="slMatAmbG" name="horizontalSlider" width="90%"/></panel>
-                    <panel backgroundColor="#006f" childLayout="center" width="100%"><control id="slMatAmbB" name="horizontalSlider" width="90%"/></panel>
-                    <panel backgroundColor="#333f" childLayout="center" width="100%"><control id="slMatAmbA" name="horizontalSlider" width="90%"/></panel>
+                    <panel backgroundColor="#600f" childLayout="center" width="100%"><control id="slMatAmbR" name="horizontalSlider" min="0.0" max="1.0" initial="0.24725" stepSize="0.05" width="90%"/></panel>
+                    <panel backgroundColor="#060f" childLayout="center" width="100%"><control id="slMatAmbG" name="horizontalSlider" min="0.0" max="1.0" initial="0.1995" stepSize="0.05" width="90%"/></panel>
+                    <panel backgroundColor="#006f" childLayout="center" width="100%"><control id="slMatAmbB" name="horizontalSlider" min="0.0" max="1.0" initial="0.0745" stepSize="0.05" width="90%"/></panel>
                     <!-- /MATERIAL AMBIENT -->
                     
                     <!-- MATERIAL SPECULAR -->
                     <text text="  Specular RGB" font="Interface/Fonts/Calibri.fnt" width="90%" height="22" wrap="false" align="center"/>
-                    <panel backgroundColor="#600f" childLayout="center" width="100%"><control id="slMatSpecR" name="horizontalSlider" width="90%"/></panel>
-                    <panel backgroundColor="#060f" childLayout="center" width="100%"><control id="slMatSpecG" name="horizontalSlider" width="90%"/></panel>
-                    <panel backgroundColor="#006f" childLayout="center" width="100%"><control id="alMatSpecB" name="horizontalSlider" width="90%"/></panel>
-                    <panel backgroundColor="#333f" childLayout="center" width="100%"><control id="alMatSpecA" name="horizontalSlider" width="90%"/></panel>
+                    <panel backgroundColor="#600f" childLayout="center" width="100%"><control id="slMatSpecR" name="horizontalSlider" min="0.0" max="1.0" initial="0.628281" stepSize="0.05" width="90%"/></panel>
+                    <panel backgroundColor="#060f" childLayout="center" width="100%"><control id="slMatSpecG" name="horizontalSlider" min="0.0" max="1.0" initial="0.555802" stepSize="0.05" width="90%"/></panel>
+                    <panel backgroundColor="#006f" childLayout="center" width="100%"><control id="slMatSpecB" name="horizontalSlider" min="0.0" max="1.0" initial="0.366065" stepSize="0.05" width="90%"/></panel>
                     <!-- /MATERIAL SPECULAR -->
                     
                     <!-- MATERIAL SHININESS -->
                     <text text="  Shininess" font="Interface/Fonts/Calibri.fnt" width="90%" height="22" wrap="false" align="center"/>
-                    <control id="slMatShin" name="horizontalSlider" width="90%"/>
+                    <control id="slMatShin" name="horizontalSlider" min="0.0" max="1.0" initial="0.4" stepSize="0.05" width="90%"/>
                     <!-- /MATERIAL SHININESS -->
                     
                     <panel width="100%" height="10px" backgroundColor="#0000"></panel>
@@ -56,10 +53,9 @@
                     <text text="Ambient Light RGB" color="#ffff" backgroundColor="#fff3" width="100%" font="Interface/Fonts/CalibriBold.fnt" height="22" wrap="false" align="center"/>
                     <panel width="100%" height="5px"></panel>
 
-                    <panel backgroundColor="#600f" childLayout="center" width="100%"><control id="slAmbLiR" name="horizontalSlider" width="90%"/></panel>
-                    <panel backgroundColor="#060f" childLayout="center" width="100%"><control id="slAmbLiG" name="horizontalSlider" width="90%"/></panel>
-                    <panel backgroundColor="#006f" childLayout="center" width="100%"><control id="slAmbLiB" name="horizontalSlider" width="90%"/></panel>
-                    <panel backgroundColor="#333f" childLayout="center" width="100%"><control id="slAmbLiA" name="horizontalSlider" width="90%"/></panel>
+                    <panel backgroundColor="#600f" childLayout="center" width="100%"><control id="slAmbLiR" name="horizontalSlider" min="0.0" max="1.0" initial="1.0" stepSize="0.05" width="90%"/></panel>
+                    <panel backgroundColor="#060f" childLayout="center" width="100%"><control id="slAmbLiG" name="horizontalSlider" min="0.0" max="1.0" initial="1.0" stepSize="0.05" width="90%"/></panel>
+                    <panel backgroundColor="#006f" childLayout="center" width="100%"><control id="slAmbLiB" name="horizontalSlider" min="0.0" max="1.0" initial="1.0" stepSize="0.05" width="90%"/></panel>
                     <!-- /AMBIENT LIGHT COLOR -->
                     
                     <panel width="100%" height="10px" backgroundColor="#0000"></panel>
@@ -72,23 +68,22 @@
 
                     <!-- SPOTLIGHT COLOR -->
                     <text text="  RGB" font="Interface/Fonts/Calibri.fnt" height="22" wrap="false" align="center"/>
-                    <panel backgroundColor="#600f" childLayout="center" width="100%"><control id="slSpotLiR" name="horizontalSlider" width="90%"/></panel>
-                    <panel backgroundColor="#060f" childLayout="center" width="100%"><control id="slSpotLiG" name="horizontalSlider" width="90%"/></panel>
-                    <panel backgroundColor="#006f" childLayout="center" width="100%"><control id="slSpotLiB" name="horizontalSlider" width="90%"/></panel>
-                    <panel backgroundColor="#333f" childLayout="center" width="100%"><control id="slSpotLiA" name="horizontalSlider" width="90%"/></panel>
+                    <panel backgroundColor="#600f" childLayout="center" width="100%"><control id="slSpotLiR" name="horizontalSlider" min="0.0" max="1.0" initial="1.0" stepSize="0.05" width="90%"/></panel>
+                    <panel backgroundColor="#060f" childLayout="center" width="100%"><control id="slSpotLiG" name="horizontalSlider" min="0.0" max="1.0" initial="1.0" stepSize="0.05" width="90%"/></panel>
+                    <panel backgroundColor="#006f" childLayout="center" width="100%"><control id="slSpotLiB" name="horizontalSlider" min="0.0" max="1.0" initial="1.0" stepSize="0.05" width="90%"/></panel>
                     <!-- /SPOTLIGHT COLOR -->
 
                     <panel childLayout="horizontal">
                         <panel childLayout="vertical">
                             <!-- SPOTLIGHT EXPONENT -->
                             <text text="  Exponent" font="Interface/Fonts/Calibri.fnt" width="90%" height="22" wrap="false" align="center"/>
-                            <control id="slSpotExp" name="horizontalSlider" width="90%"/>
+                            <control id="slSpotExp" name="horizontalSlider" min="0.0" max="1.0" initial="0.5" stepSize="0.05" width="90%"/>
                             <!-- /SPOTLIGHT EXPONENT -->
                         </panel>
                         <panel childLayout="vertical">
                             <!-- SPOTLIGHT CUTOFF -->
                             <text text="  Cutoff" font="Interface/Fonts/Calibri.fnt" width="90%" height="22" wrap="false" align="center"/>
-                            <control id="slSpotCut" name="horizontalSlider" width="90%"/>
+                            <control id="slSpotCut" name="horizontalSlider" min="0.0" max="1.0" initial="0.5" stepSize="0.05" width="90%"/>
                             <!-- /SPOTLIGHT CUTOFF -->
                         </panel>
                     </panel>
