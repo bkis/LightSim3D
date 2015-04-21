@@ -116,7 +116,7 @@ public class Main extends SimpleApplication {
         ambient = new AmbientLight();
         ambientNode = new LightNode("ambientNode", ambient);
         rootNode.addLight(ambient);
-        rootNode.attachChild(ambientNode);
+        //rootNode.attachChild(ambientNode);
         
         //directional light
         spot = new SpotLight(); 
@@ -127,7 +127,7 @@ public class Main extends SimpleApplication {
         spot.setPosition(cam.getLocation().add(1, 0, 0)); 
         spotNode = new LightNode("spotNode", spot);
         rootNode.addLight(spot);
-        rootNode.attachChild(spotNode);
+        //rootNode.attachChild(spotNode); //TODO: LightNode Problem mit SpotLight!
         
         //shadow renderer
         slsr = new SpotLightShadowRenderer(assetManager, 1024);
