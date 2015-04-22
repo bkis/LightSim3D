@@ -72,10 +72,8 @@ public class Main extends SimpleApplication {
         flyCam.setEnabled(false);
         
         //camera
-        //cam.setLocation(new Vector3f(1.1161567f, 1.8043375f, -2.223234f));
-        //cam.setRotation(new Quaternion(0.24233484f, -0.16623776f, 0.042186935f, 0.95491314f));
-        cam.setLocation(new Vector3f(3.517003f, 10.179513f, -12.010813f));
-        cam.setRotation(new Quaternion(0.36417353f, -0.0749117f, 0.029401982f, 0.92784774f));
+        cam.setLocation(new Vector3f(1.1161567f, 1.8043375f, -2.223234f));
+        cam.setRotation(new Quaternion(0.24233484f, -0.16623776f, 0.042186935f, 0.95491314f));
 
         //register loaders
         assetManager.registerLoader(TextLoader.class, "txt");
@@ -115,8 +113,8 @@ public class Main extends SimpleApplication {
         
         //spotlight
         spot = new SpotLight();  
-        spot.setPosition(cam.getLocation().add(1, 0, 0));
-        spot.setDirection(spot.getDirection().project(cam.getDirection()));
+        spot.setPosition(new Vector3f(5,4,0));
+        spot.setDirection(new Vector3f(-1.5f,-1,0));
         rootNode.addLight(spot);
         
         //shadow renderer
@@ -201,11 +199,11 @@ public class Main extends SimpleApplication {
         if (id.equals("slMatShin")) {
             sphere.getMaterial().setFloat("Shininess", v.get(id)*127+1);
         } else if (id.equals("slSpotExp")) {
-            spot.setSpotInnerAngle(v.get("slSpotExp") * 180 * FastMath.DEG_TO_RAD);
+            spot.setSpotOuterAngle(v.get("slSpotExp") * FastMath.DEG_TO_RAD);
         } else if (id.equals("slSpotCut")) {
-            spot.setSpotInnerAngle(v.get("slSpotCut") * 180 * FastMath.DEG_TO_RAD);
+            spot.setSpotInnerAngle(v.get("slSpotCut") * FastMath.DEG_TO_RAD);
         } else if (id.equals("slSpotRange")) {
-            spot.setSpotRange(v.get("slSpotRange")*128);
+            spot.setSpotRange(v.get("slSpotRange"));
         } else {
             if (id.contains("MatDiff")){
                 sphere.getMaterial().setColor("Diffuse", new ColorRGBA(
@@ -232,7 +230,7 @@ public class Main extends SimpleApplication {
                         v.get("slAmbLiB"),
                         1));
             } else if (id.contains("SpotLi")){
-                ambient.setColor(new ColorRGBA(
+                spot.setColor(new ColorRGBA(
                         v.get("slSpotLiR"),
                         v.get("slSpotLiG"),
                         v.get("slSpotLiB"),
