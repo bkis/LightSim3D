@@ -15,12 +15,11 @@ import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.LightNode;
-import com.jme3.scene.control.LightControl;
 import com.jme3.scene.shape.Quad;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.shadow.SpotLightShadowRenderer;
 import com.jme3.system.AppSettings;
+import com.jme3.system.lwjgl.LwjglContext;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -43,11 +42,7 @@ public class Main extends SimpleApplication {
     
     private SpotLight spot;
     private SpotLightShadowRenderer slsr;
-    private LightNode spotNode;
     private AmbientLight ambient;
-    private LightNode ambientNode;
-    private boolean ambLightOn = true;
-    private boolean spotLightOn = true;
     
     private GUIController gui;
     
@@ -77,9 +72,11 @@ public class Main extends SimpleApplication {
         flyCam.setEnabled(false);
         
         //camera
-        cam.setLocation(new Vector3f(1.1161567f, 1.8043375f, -2.223234f));
-        cam.setRotation(new Quaternion(0.24233484f, -0.16623776f, 0.042186935f, 0.95491314f));
-        
+        //cam.setLocation(new Vector3f(1.1161567f, 1.8043375f, -2.223234f));
+        //cam.setRotation(new Quaternion(0.24233484f, -0.16623776f, 0.042186935f, 0.95491314f));
+        cam.setLocation(new Vector3f(3.517003f, 10.179513f, -12.010813f));
+        cam.setRotation(new Quaternion(0.36417353f, -0.0749117f, 0.029401982f, 0.92784774f));
+
         //register loaders
         assetManager.registerLoader(TextLoader.class, "txt");
         
@@ -89,8 +86,8 @@ public class Main extends SimpleApplication {
         ground.setShadowMode(RenderQueue.ShadowMode.Receive);
         Material groundMat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
         groundMat.setBoolean("UseMaterialColors", true);
-        groundMat.setColor("Diffuse", ColorRGBA.White);
-        groundMat.setColor("Ambient", ColorRGBA.White);
+        groundMat.setColor("Diffuse", ColorRGBA.Gray);
+        groundMat.setColor("Ambient", ColorRGBA.Gray);
         groundMat.setColor("Specular", ColorRGBA.White);
         ground.setMaterial(groundMat);
         ground.rotate(FastMath.DEG_TO_RAD*-90, 0, 0);
@@ -114,20 +111,13 @@ public class Main extends SimpleApplication {
         
         //ambient light
         ambient = new AmbientLight();
-        ambientNode = new LightNode("ambientNode", ambient);
         rootNode.addLight(ambient);
-        //rootNode.attachChild(ambientNode);
         
-        //directional light
-        spot = new SpotLight(); 
-        spot.setSpotRange(50); 
-        spot.setSpotOuterAngle(45 * FastMath.DEG_TO_RAD); 
-        spot.setSpotInnerAngle(5 * FastMath.DEG_TO_RAD); 
-        spot.setDirection(cam.getDirection()); 
-        spot.setPosition(cam.getLocation().add(1, 0, 0)); 
-        spotNode = new LightNode("spotNode", spot);
+        //spotlight
+        spot = new SpotLight();  
+        spot.setPosition(cam.getLocation().add(1, 0, 0));
+        spot.setDirection(spot.getDirection().project(cam.getDirection()));
         rootNode.addLight(spot);
-        //rootNode.attachChild(spotNode); //TODO: LightNode Problem mit SpotLight!
         
         //shadow renderer
         slsr = new SpotLightShadowRenderer(assetManager, 1024);
@@ -168,13 +158,9 @@ public class Main extends SimpleApplication {
         inputManager.addMapping("TOGGLE_DIRLIGHT", new KeyTrigger(KeyInput.KEY_D));
         inputManager.addMapping("TOGGLE_AMBLIGHT", new KeyTrigger(KeyInput.KEY_A));
         
-        inputManager.addListener(actionListener, "SELECT_OBJECT",
-                                                 "SELECT_ALL",
-                                                 "TOGGLE_FPS",
+        inputManager.addListener(actionListener, "TOGGLE_FPS",
                                                  "TOGGLE_STATS",
-                                                 "TOGGLE_SHADOWS",
-                                                 "TOGGLE_DIRLIGHT",
-                                                 "TOGGLE_AMBLIGHT");
+                                                 "TOGGLE_SHADOWS");
     }
     
     private ActionListener actionListener = new ActionListener(){
@@ -192,28 +178,6 @@ public class Main extends SimpleApplication {
                     viewPort.addProcessor(slsr);
                 }
                 displayOnScreenMsg("Shadow Processor " + (viewPort.getProcessors().contains(slsr) ? "enabled" : "disabled"));
-            } else if (name.equals("TOGGLE_DIRLIGHT") && pressed){
-                if (spotLightOn){
-                    spotNode.setEnabled(false);
-                    if (viewPort.getProcessors().contains(slsr)) viewPort.removeProcessor(slsr);
-                    displayOnScreenMsg("Directional light and shadow processor disabled");
-                    spotLightOn = false;
-                } else {
-                    spotNode.setEnabled(true);
-                    if (!viewPort.getProcessors().contains(slsr)) viewPort.addProcessor(slsr);
-                    displayOnScreenMsg("Directional light and shadow processor enabled");
-                    spotLightOn = true;
-                }
-            } else if (name.equals("TOGGLE_AMBLIGHT") && pressed){
-                if (ambLightOn){
-                    ambientNode.setEnabled(false);
-                    displayOnScreenMsg("Ambient light disabled");
-                    ambLightOn = false;
-                } else {
-                    ambientNode.setEnabled(true);
-                    displayOnScreenMsg("Ambient light enabled");
-                    ambLightOn = true;
-                }
             }
         }
     };
@@ -237,9 +201,11 @@ public class Main extends SimpleApplication {
         if (id.equals("slMatShin")) {
             sphere.getMaterial().setFloat("Shininess", v.get(id)*127+1);
         } else if (id.equals("slSpotExp")) {
-            //TODO
+            spot.setSpotInnerAngle(v.get("slSpotExp") * 180 * FastMath.DEG_TO_RAD);
         } else if (id.equals("slSpotCut")) {
-            //TODO
+            spot.setSpotInnerAngle(v.get("slSpotCut") * 180 * FastMath.DEG_TO_RAD);
+        } else if (id.equals("slSpotRange")) {
+            spot.setSpotRange(v.get("slSpotRange")*128);
         } else {
             if (id.contains("MatDiff")){
                 sphere.getMaterial().setColor("Diffuse", new ColorRGBA(
@@ -302,6 +268,7 @@ public class Main extends SimpleApplication {
         //Spotlight Exponent + Cutoff
         v.put("slSpotExp", gui.getSliderValue("slSpotExp"));
         v.put("slSpotCut", gui.getSliderValue("slSpotCut"));
+        v.put("slSpotRange", gui.getSliderValue("slSpotRange"));
         
         //set initial values
         for (Entry<String, Float> e : v.entrySet()){
