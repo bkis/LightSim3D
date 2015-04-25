@@ -19,7 +19,6 @@ import com.jme3.scene.shape.Quad;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.shadow.SpotLightShadowRenderer;
 import com.jme3.system.AppSettings;
-import com.jme3.system.lwjgl.LwjglContext;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -57,8 +56,9 @@ public class Main extends SimpleApplication {
         settings.setVSync(true);
         settings.setFullscreen(false);
         settings.setTitle("LightSim3D");
+        settings.setSettingsDialogImage("Interface/splash.png");
         
-        app.showSettings = false;
+        app.showSettings = true;
         app.setDisplayFps(isDisplayFps);
         app.setDisplayStatView(isDisplayStats);
         app.setSettings(settings);
@@ -75,9 +75,6 @@ public class Main extends SimpleApplication {
         cam.setLocation(new Vector3f(1.1161567f, 1.8043375f, -2.223234f));
         cam.setRotation(new Quaternion(0.24233484f, -0.16623776f, 0.042186935f, 0.95491314f));
 
-        //register loaders
-        assetManager.registerLoader(TextLoader.class, "txt");
-        
         //load ground plane
         Quad quad = new Quad(200, 200);
         Geometry ground = new Geometry("ground", quad);
@@ -93,7 +90,7 @@ public class Main extends SimpleApplication {
         rootNode.attachChild(ground);
         
         //load object
-        Sphere sphereMesh = new Sphere(32,32,20f);
+        Sphere sphereMesh = new Sphere(64,64,20f);
         sphere = new Geometry("sphere", sphereMesh);
         sphere.scale(0.03f);
         sphere.move(0, 0.5f, 0f);
@@ -135,13 +132,11 @@ public class Main extends SimpleApplication {
 
     @Override
     public void simpleUpdate(float tpf) {
-        
         //onscreen msg timing
         if (isOnScreenMsg && (onScreenMsgTime+=tpf) > 2){
             guiNode.detachChildNamed("msg");
             isOnScreenMsg = false;
         }
-
     }
 
     @Override
@@ -152,13 +147,11 @@ public class Main extends SimpleApplication {
     private void initInputs(){
         inputManager.addMapping("TOGGLE_FPS", new KeyTrigger(KeyInput.KEY_F1));
         inputManager.addMapping("TOGGLE_STATS", new KeyTrigger(KeyInput.KEY_F2));
-        inputManager.addMapping("TOGGLE_SHADOWS", new KeyTrigger(KeyInput.KEY_S));
         inputManager.addMapping("TOGGLE_DIRLIGHT", new KeyTrigger(KeyInput.KEY_D));
         inputManager.addMapping("TOGGLE_AMBLIGHT", new KeyTrigger(KeyInput.KEY_A));
         
         inputManager.addListener(actionListener, "TOGGLE_FPS",
-                                                 "TOGGLE_STATS",
-                                                 "TOGGLE_SHADOWS");
+                                                 "TOGGLE_STATS");
     }
     
     private ActionListener actionListener = new ActionListener(){
@@ -169,13 +162,6 @@ public class Main extends SimpleApplication {
             } else if (name.equals("TOGGLE_STATS") && pressed){
                 setDisplayStatView(isDisplayStats = !isDisplayStats);
                 displayOnScreenMsg("Stats display " + (isDisplayStats ? "enabled" : "disabled"));
-            } else if (name.equals("TOGGLE_SHADOWS") && pressed){
-                if (viewPort.getProcessors().contains(slsr)){
-                    viewPort.removeProcessor(slsr);
-                } else {
-                    viewPort.addProcessor(slsr);
-                }
-                displayOnScreenMsg("Shadow Processor " + (viewPort.getProcessors().contains(slsr) ? "enabled" : "disabled"));
             }
         }
     };
@@ -194,7 +180,7 @@ public class Main extends SimpleApplication {
     }
     
     public void sliderEvent(String id, float value){
-        displayOnScreenMsg(id + ": " + value);
+        //displayOnScreenMsg(id + ": " + value);
         v.put(id, value);
         if (id.equals("slMatShin")) {
             sphere.getMaterial().setFloat("Shininess", v.get(id)*127+1);
