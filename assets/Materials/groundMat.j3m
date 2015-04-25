@@ -1,8 +1,0 @@
-Material groundMat : Common/MatDefs/Light/Lighting.j3md {
-     MaterialParameters {
-        DiffuseMap : Repeat messagebox/ERROR.png
-        SeparateTexCoord : false
-     }
-    AdditionalRenderState {
-    }
-}

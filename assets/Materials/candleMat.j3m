@@ -1,9 +1,0 @@
-Material candleMat : Common/MatDefs/Light/Lighting.j3md {
-     MaterialParameters {
-        DiffuseMap : Flip Models/Candle/diffuse.jpg
-        NormalMap : Flip Models/Candle/normal.jpg
-        SpecularMap : Flip Models/Candle/specular.jpg
-     }
-    AdditionalRenderState {
-    }
-}
