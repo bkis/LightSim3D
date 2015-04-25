@@ -84,8 +84,8 @@ public class Main extends SimpleApplication {
         ground.setShadowMode(RenderQueue.ShadowMode.Receive);
         Material groundMat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
         groundMat.setBoolean("UseMaterialColors", true);
-        groundMat.setColor("Diffuse", ColorRGBA.Gray);
-        groundMat.setColor("Ambient", ColorRGBA.Gray);
+        groundMat.setColor("Diffuse", ColorRGBA.White);
+        groundMat.setColor("Ambient", ColorRGBA.White);
         groundMat.setColor("Specular", ColorRGBA.White);
         ground.setMaterial(groundMat);
         ground.rotate(FastMath.DEG_TO_RAD*-90, 0, 0);
